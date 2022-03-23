@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.ReportDao">
+
+	<select id="getAllSalesRankingAllData" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		aa.*,
+		sg.shop_goods_id,
+		sg.shop_goods_name as goodsname
+		FROM
+		(
+		SELECT
+		SUM(sod.order_info_amount) AS number,
+		sod.shop_goods_id AS id
+		FROM
+		shop_order_info soi
+		LEFT JOIN
+		shop_order_detail sod ON
+		sod.order_info_id
+		= soi.order_info_id
+		WHERE
+		1=1
+		<if test="starttime!=null and starttime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &gt;=
+			#{starttime}
+		</if>
+		<if test="endtime!=null and endtime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &lt;=
+			#{endtime}
+		</if>
+		GROUP BY
+		shop_goods_id
+		) AS aa
+		LEFT JOIN
+		shop_goods sg ON sg.shop_goods_id
+		= aa.id
+		ORDER BY aa.number DESC
+		limit 10
+	</select>
+
+	<select id="getAllBadRankingAllData" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		sg.shop_goods_id,
+		sg.shop_goods_name as goodsname,
+		IFNULL( aa.shop_goods_feedback, 0 ) AS feedback
+		FROM
+		shop_goods sg
+		LEFT JOIN (
+		SELECT
+		a.shop_goods_id,
+		IFNULL( count( a.shop_goods_id ), 0 ),
+		SUM(
+		gc.goods_comment_level ),
+		IFNULL( SUM( gc.goods_comment_level ) /
+		IFNULL( count( a.shop_goods_id ), 0 ), 0 ) AS shop_goods_feedback
+		FROM
+		goods_comment gc
+		LEFT JOIN ( SELECT sgc.*, sg.shop_goods_name AS
+		goodsname FROM shop_goods_comment sgc LEFT JOIN shop_goods sg ON
+		sgc.shop_goods_id = sg.shop_goods_id ) a ON a.goods_comment_id =
+		gc.goods_comment_id
+		WHERE
+		1 = 1
+		GROUP BY
+		a.shop_goods_id
+		) aa ON aa.shop_goods_id = sg.shop_goods_id
+		WHERE
+		1 = 1
+		<if test="bad!=null">
+			ORDER BY aa.shop_goods_feedback ASC
+		</if>
+		<if test="god!=null">
+			ORDER BY aa.shop_goods_feedback DESC
+		</if>
+		limit 10
+	</select>
+
+	<select id="getAllValidOrderAllData" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		COUNT(soi.order_info_id) as number,
+		STR_TO_DATE(soi.order_info_creatime,'%Y-%m-%d') AS creatime
+		FROM
+		shop_order_info soi
+		WHERE
+		1=1
+		<if test="starttime!=null and starttime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &gt;=
+			#{starttime}
+		</if>
+		<if test="endtime!=null and endtime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &lt;=
+			#{endtime}
+		</if>
+		GROUP BY
+		STR_TO_DATE(soi.order_info_creatime,'%Y-%m-%d')
+	</select>
+
+	<select id="getAllWorkersPraiseListpage"
+		parameterType="PageData" resultType="PageData">
+		SELECT
+		uw.worker_id,
+		uw.worker_rating as rating,
+		uw.worker_name as name
+		FROM
+		user_worker uw
+		where
+		1=1
+		ORDER BY
+		uw.worker_rating DESC
+		limit 10
+	</select>
+
+
+	<select id="getAllSalesGoodsPriceData" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		aa.*,
+		sg.shop_goods_id,
+		sg.shop_goods_name as goodsname
+		FROM
+		(
+		SELECT
+		SUM(sod.order_info_amount* sod.shop_specification_price) AS
+		price,
+		sod.shop_goods_id AS id
+		FROM
+		shop_order_info soi
+		LEFT JOIN
+		shop_order_detail sod ON sod.order_info_id
+		= soi.order_info_id
+		WHERE
+		1=1
+		<if test="starttime!=null and starttime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &gt;=
+			#{starttime}
+		</if>
+		<if test="endtime!=null and endtime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &lt;=
+			#{endtime}
+		</if>
+		GROUP BY
+		shop_goods_id
+		) AS aa
+		LEFT JOIN
+		shop_goods sg ON sg.shop_goods_id
+		= aa.id
+		ORDER BY aa.price DESC
+		limit 10
+	</select>
+
+	<select id="getAllSalesData" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		sg.*
+		FROM
+		sys_sell sg
+	</select>
+
+	<select id="getAllSalesPerformanceAllData"
+		parameterType="PageData" resultType="PageData">
+		SELECT
+		ss.id,
+		IFNULL(SUM(aa.allprice),0) AS allprice,
+		ss.name AS
+		sellname,
+		ss.id
+		FROM
+		sys_sell ss
+		LEFT JOIN
+		(
+		SELECT
+		ui.sell_id AS sellid,
+		uo.user_id AS
+		userid,
+		IFNULL(SUM(soi.order_info_altogether),0) AS
+		allprice
+		FROM
+		user_order uo
+		LEFT JOIN shop_order_info soi ON
+		soi.order_info_id =
+		uo.order_info_id
+		LEFT JOIN user_info ui ON
+		ui.user_id = uo.user_id
+		where
+		1=1
+		<if test="starttime!=null and starttime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &gt;=
+			#{starttime}
+		</if>
+		<if test="endtime!=null and endtime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &lt;=
+			#{endtime}
+		</if>
+		GROUP BY
+		uo.user_id
+		) AS aa ON aa.sellid = ss.id
+		where
+		1=1
+		<if test="userid!=null">and ss.id=#{userid}</if>
+		GROUP BY
+		ss.id
+		ORDER BY allprice DESC
+		limit 10
+	</select>
+
+	<select id="getAllTrackingCustomersAllData"
+		parameterType="PageData" resultType="PageData">
+		SELECT
+		ui.sell_id AS sellid,
+		uo.user_id AS userid,
+		ui.user_name AS
+		username,
+		ui.user_phone AS phone,
+		IFNULL(SUM(soi.order_info_altogether),0) AS allprice
+		FROM
+		user_info ui
+		LEFT JOIN user_order uo ON ui.user_id = uo.user_id
+		LEFT JOIN
+		shop_order_info soi ON soi.order_info_id =
+		uo.order_info_id
+		where
+		1=1
+		AND
+		uo.user_id!=''
+		<if test="starttime!=null and starttime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &gt;=
+			#{starttime}
+		</if>
+		<if test="endtime!=null and endtime!=''">
+			and DATE_FORMAT(soi.order_info_creatime,'%Y-%m-%d') &lt;=
+			#{endtime}
+		</if>
+		<if test="userid!=null">and ui.sell_id=#{userid}</if>
+		<if test="allids!=null">and FIND_IN_SET(uo.user_id,#{allids})</if>
+		GROUP BY
+		ui.user_id
+		ORDER BY allprice DESC
+	</select>
+
+
+	<select id="getAllOrderByuseridListpage"
+		parameterType="PageData" resultType="PageData">
+		SELECT
+		soi.*,
+		uo.user_id
+		FROM
+		shop_order_info soi
+		LEFT JOIN user_order uo
+		ON soi.order_info_id =
+		uo.order_info_id
+		WHERE
+		1=1
+		<if test="ids!=null">and soi.out_trade_no=#{ids}</if>
+		<if test="userid!=null">and uo.user_id=#{userid}</if>
+		<if test="orderid!=null">and soi.order_info_id=#{orderid}</if>
+	</select>
+
+	<select id="getAllOrderByGoodsidListpage"
+		parameterType="PageData" resultType="PageData">
+		SELECT
+		soi.*
+		FROM
+		shop_order_info soi
+		LEFT JOIN
+		(
+		SELECT
+		sod.order_info_id AS
+		id
+		FROM
+		shop_order_detail sod
+		WHERE
+		1=1
+		<if test="goodsid!=null">and sod.shop_goods_id=#{goodsid}</if>
+		GROUP BY
+		sod.order_info_id
+		) AS aa ON
+		aa.id = soi.order_info_id
+	</select>
+
+</mapper>

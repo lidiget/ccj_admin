@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.TakesDao">
+	<select id="getAllTakeListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ti.*,
+		ifnull(ti.task_info_specification,0) *
+		ifnull(ti.task_info_recruitime,0) as allmoney,
+		uw.worker_name AS
+		workername,
+		vc.vehicle_classify_name as
+		carname
+		from
+		task_info
+		ti
+		LEFT JOIN
+		user_worker uw
+		ON
+		ti.worker_id=uw.worker_id
+		LEFT JOIN
+		vehicle_classify vc
+		ON
+		ti.vehicle_info_id=vc.vehicle_classify_id
+		where 1=1
+		<if test="pd.ids!=null">and ti.out_trade_no=#{pd.ids}</if>
+		<if test="pd.id!=null">and ti.task_info_id=#{pd.id}</if>
+		<if test="pd.status!=null">and ti.task_info_status=#{pd.status}</if>
+		<if test="pd.ziying!=null">and ti.worker_id is not null</if>
+		<if test="pd.siying!=null">and ti.worker_id IS NULL</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ti.task_info_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+
+			)
+
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ti.task_info_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='allmoney'">
+				ifnull(ti.task_info_specification,0) *
+				ifnull(ti.task_info_recruitime,0)
+			</if>
+			<if test="pd.sortField=='task_info_id'">
+				ti.task_info_id
+			</if>
+			<if test="pd.sortField=='workername'">
+				uw.worker_name
+			</if>
+			<if test="pd.sortField=='worker_two_name'">
+				ti.worker_two_name
+			</if>
+			<if test="pd.sortField=='task_info_type'">
+				ti.task_info_type
+			</if>
+			<if test="pd.sortField=='task_info_city'">
+				ti.task_info_city
+			</if>
+			<if test="pd.sortField=='task_info_specification'">
+				ti.task_info_specification
+			</if>
+			<if test="pd.sortField=='task_info_yajin'">
+				ti.task_info_yajin
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='allmoney'">
+				ifnull(ti.task_info_specification,0) *
+				ifnull(ti.task_info_recruitime,0)
+			</if>
+			<if test="pd.sortField=='task_info_id'">
+				ti.task_info_id
+			</if>
+			<if test="pd.sortField=='workername'">
+				uw.worker_name
+			</if>
+			<if test="pd.sortField=='worker_two_name'">
+				ti.worker_two_name
+			</if>
+			<if test="pd.sortField=='task_info_type'">
+				ti.task_info_type
+			</if>
+			<if test="pd.sortField=='task_info_city'">
+				ti.task_info_city
+			</if>
+			<if test="pd.sortField=='task_info_specification'">
+				ti.task_info_specification
+			</if>
+			<if test="pd.sortField=='task_info_yajin'">
+				ti.task_info_yajin
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<update id="changeTakeStatusById" parameterType="PageData">
+		UPDATE
+		task_info
+		SET
+		task_info_status=#{type}
+		WHERE
+		task_info_id=#{id}
+	</update>
+
+	<insert id="addNewTaskData" parameterType="map"
+		useGeneratedKeys="true" keyColumn="task_info_id"
+		keyProperty="task_info_id">
+		INSERT INTO
+		task_info(task_info_release,worker_two_name,task_info_type,task_info_city,task_info_address,task_info_geton,task_info_getoff,task_info_phone,task_info_hoursuse,task_info_hoursu,task_info_recruitime,task_info_explain,task_info_stas,worker_id,task_info_due,task_info_whether,task_info_creatime,task_info_status,task_info_yajin,task_files)
+		VALUE(#{task_info_release},#{worker_two_name},#{task_info_type},#{task_info_city},#{task_info_address},#{task_info_geton},#{task_info_getoff},#{task_info_phone},#{task_info_hoursuse},#{task_info_hoursu},#{task_info_recruitime},#{task_info_explain},#{task_info_stas},#{worker_id},#{task_info_due},#{task_info_whether},#{task_info_creatime},#{task_info_status},#{task_info_yajin},#{task_files});
+	</insert>
+
+
+
+	<select id="getAllGongzhongListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		task_worktype
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.task_worktype_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.task_worktype_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.task_worktype_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		order by ir.task_worktype_id desc
+	</select>
+
+
+	<select id="getAllGongzhong1Listpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*,
+		wt.worker_one_id,
+		ww.worker_one_name AS worker_one_name
+		from
+		worker_two_classify
+		ir
+		LEFT JOIN worker_one_two
+		wt ON wt.worker_two_id =
+		ir.worker_two_id
+		LEFT JOIN worker_one_classify
+		ww ON ww.worker_one_id =
+		wt.worker_one_id
+		where
+		1=1
+		<if test="pd.id!=null">and ir.worker_two_id=#{pd.id}</if>
+		<if test="pd.fenleiid!=null">and wt.worker_one_id=#{pd.fenleiid}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.worker_two_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.worker_two_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.worker_two_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='worker_two_id'">
+				ir.worker_two_id
+			</if>
+			<if test="pd.sortField=='worker_two_name'">
+				ir.worker_two_name
+			</if>
+			<if test="pd.sortField=='worker_one_name'">
+				ww.worker_one_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='worker_two_id'">
+				ir.worker_two_id
+			</if>
+			<if test="pd.sortField=='worker_two_name'">
+				ir.worker_two_name
+			</if>
+			<if test="pd.sortField=='worker_one_name'">
+				ww.worker_one_name
+			</if>
+			ASC
+		</if>
+
+	</select>
+
+
+
+	<select id="getAllLeiXingListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		task_type
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.task_type_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ui.task_type_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.task_type_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		order by ir.task_type_id desc
+	</select>
+
+
+	<select id="getAllgongzhongfenlei" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		worker_one_classify
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.worker_one_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ui.worker_one_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.worker_one_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+	</select>
+
+	<insert id="addgongzhongdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="task_worktype_id"
+		keyProperty="task_worktype_id">
+		INSERT INTO
+		worker_two_classify(worker_two_name,worker_two_creatime,worker_two_status,worker_two_unit)
+		VALUE(#{worker_two_name},#{worker_two_creatime},#{worker_two_status},#{worker_two_unit});
+	</insert>
+
+	<insert id="addgongzhongleixingdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="worker_one_id"
+		keyProperty="worker_one_id">
+		INSERT INTO
+		worker_one_classify(worker_one_name,worker_one_creatime,worker_one_status)
+		VALUE(#{worker_one_name},#{worker_one_creatime},#{worker_one_status});
+	</insert>
+
+
+	<insert id="addgongzhongrelationdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="worker_one_two_id"
+		keyProperty="worker_one_two_id">
+		INSERT INTO
+		worker_one_two(worker_one_id,worker_two_id,worker_one_two_creatime,worker_one_two_status)
+		VALUE(#{worker_one_id},#{worker_two_id},#{worker_one_two_creatime},#{worker_one_two_status});
+	</insert>
+
+	<insert id="addNewTaskRelationData" parameterType="map"
+		useGeneratedKeys="true" keyColumn="task_user_id"
+		keyProperty="task_user_id">
+		INSERT INTO
+		task_user(user_id,task_info_id)
+		VALUE(#{user_id},#{task_info_id});
+	</insert>
+
+	<insert id="addleixingdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="task_type_id"
+		keyProperty="task_type_id">
+		INSERT INTO
+		task_type(task_type_name,task_type_createtime)
+		VALUE(#{task_type_name},#{task_type_createtime});
+	</insert>
+
+
+	<update id="updategongzhongdatabyid" parameterType="PageData">
+		UPDATE
+		worker_two_classify
+		SET
+		worker_two_name=#{worker_two_name},worker_two_unit=#{worker_two_unit}
+		WHERE
+		worker_two_id=#{worker_two_id}
+	</update>
+
+
+	<update id="updategongzhongleixingdatabyid"
+		parameterType="PageData">
+		UPDATE
+		worker_one_classify
+		SET
+		worker_one_name=#{worker_one_name}
+		WHERE
+		worker_one_id=#{id}
+	</update>
+
+	<update id="updateleixingdatabyid" parameterType="PageData">
+		UPDATE
+		task_type
+		SET
+		task_type_name=#{task_type_name}
+		WHERE
+		task_type_id=#{task_type_id}
+	</update>
+
+	<delete id="deletegongzhongdatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			worker_two_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and worker_two_id=#{id}</if>
+		</if>
+	</delete>
+
+
+	<delete id="deleteOnefenleidataByid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			worker_one_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and worker_one_id=#{id}</if>
+		</if>
+	</delete>
+
+
+	<delete id="deletegongzhongrelationdatabyid"
+		parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			worker_one_two
+			where
+			1=1
+			<if test="id!=null and id!=''">and worker_two_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deleteleixingdatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			task_type
+			where
+			1=1
+			<if test="id!=null and id!=''">and task_type_id=#{id}</if>
+		</if>
+	</delete>
+
+
+	<select id="seleUseridByPhone" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ui.*
+		FROM
+		user_info ui
+		WHERE
+		1 = 1
+		AND ui.user_phone = ( SELECT
+		su.phonenumber FROM sys_user su WHERE 1 = 1
+		<if test="user_id!=null">and su.user_id=#{user_id}</if>
+		)
+	</select>
+</mapper>

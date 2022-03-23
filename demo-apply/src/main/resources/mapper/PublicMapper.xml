@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.PublicDao">
+	<select id="selectAll" resultType="PageData">
+		select
+		*
+		from
+		${table}
+	</select>
+
+	<select id="selectOne" resultType="PageData">
+		select
+		*
+		from
+		${table}
+		order by
+		#{id}
+		limit 1
+	</select>
+	<select id="selectAllSelllistPage" parameterType="Page"
+		resultType="PageData">
+		select
+		ss.*
+		from
+		sys_sell
+		ss
+		where
+		1=1
+		<if test="pd.zhuguan!=null and pd.zhuguan!=''">and FIND_IN_SET(ss.role,1)</if>
+		<if test="pd.nozhuguan!=null and pd.nozhuguan!=''">and FIND_IN_SET(ss.role,0) and ss.zhuguan_id is null</if>
+		<if test="pd.nobangdingid!=null and pd.nobangdingid!=''">and ss.zhuguan_id is null and FIND_IN_SET(ss.role,0)</if>
+		<if test="pd.bangdingid!=null and pd.bangdingid!=''">and FIND_IN_SET(ss.zhuguan_id,#{pd.bangdingid})</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ss.name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ss.id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='name'">
+				ss.name
+			</if>
+			<if test="pd.sortField=='invite'">
+				ss.invite
+			</if>
+			<if test="pd.sortField=='achievement'">
+				ss.achievement
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='name'">
+				ss.name
+			</if>
+			<if test="pd.sortField=='invite'">
+				ss.invite
+			</if>
+			<if test="pd.sortField=='achievement'">
+				ss.achievement
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<update id="update">
+		update
+		${table_name}
+		set
+		${column}=#{columnvalue}
+		<if test="column2!=null">,${column2}=#{columnvalue2}</if>
+		where
+		1=1
+		<if test="slide_id!=null and slide_id!=''">and slide_id=#{slide_id}</if>
+		<if test="shop_freight_id!=null and shop_freight_id!=''">and shop_freight_id=#{shop_freight_id}</if>
+	</update>
+
+	<insert id="addSell" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		INSERT INTO
+		sys_sell(id,name,invite,achievement)
+		VALUE(#{id},#{name},#{invite},#{achievement});
+	</insert>
+
+
+	<insert id="addSlideShow" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="slide_id" keyProperty="slide_id">
+		INSERT INTO
+		slide_show(slide_id,slide_name,shop_goods_id)
+		VALUE(#{slide_id},#{slide_name},#{shop_goods_id});
+	</insert>
+	<update id="changeSell">
+		update
+		sys_sell
+		set
+		<if test="name!=null">name=#{name},</if>
+		<if test="invite!=null">invite=#{invite},</if>
+		<if test="achievement!=null">achievement=#{achievement},</if>
+		id=#{id}
+		where
+		id=#{id}
+
+	</update>
+	<delete id="deleteSlideShow">
+		delete from slide_show where slide_id=#{slide_id}
+	</delete>
+
+
+	<update id="changeRoleBySellid">
+		update
+		sys_sell
+		set
+		<if test="role!=null and role!=''">role=#{role}</if>
+		<if test="zhuguanid!=null and zhuguanid!=''">zhuguan_id=null</if>
+		where
+		1=1
+		<if test="id!=null and id!=''">and id=#{id}</if>
+	</update>
+	
+	<update id="changeallzhuguanidBySellid">
+		update
+		sys_sell
+		set
+		zhuguan_id=null
+		where
+		1=1
+		<if test="id!=null and id!=''">and zhuguan_id=#{id}</if>
+	</update>
+	
+	
+</mapper>

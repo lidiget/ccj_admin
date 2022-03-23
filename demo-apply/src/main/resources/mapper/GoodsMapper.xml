@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.GoodsDao">
+	<select id="getAllShopGoodsListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		sg.*,
+		IFNULL(aa.shop_goods_feedback,0) AS feedback,
+		ss.shop_goods_unit_name as unitname,
+		aa.shop_goods_color_name as
+		colorname,
+		bb.shop_goods_worktype_name as
+		worktypename,
+		cc.shop_warehouse_name as manufacturersname
+		from
+		shop_goods sg
+		left join
+		shop_goods_unit ss on
+		ss.shop_goods_unit_id =
+		sg.shop_goods_unit
+		left
+		join shop_goods_color
+		aa on
+		aa.shop_goods_color_id = sg.shop_goods_color
+		left join
+		shop_goods_worktype bb on bb.shop_goods_worktype_id =
+		sg.shop_goods_profession
+		left join
+		shop_warehouse cc on
+		cc.shop_warehouse_id =
+		sg.shop_goods_manufacturers
+		LEFT JOIN
+		(
+		SELECT
+		a.shop_goods_id,
+		IFNULL(count(a.shop_goods_id),0),
+		SUM(gc.goods_comment_level),
+		IFNULL(SUM(gc.goods_comment_level)/IFNULL(count(a.shop_goods_id),0),0)
+		AS shop_goods_feedback
+		FROM
+		goods_comment gc
+		LEFT JOIN ( SELECT sgc.*,
+		sg.shop_goods_name AS goodsname FROM
+		shop_goods_comment sgc LEFT JOIN
+		shop_goods sg ON sgc.shop_goods_id =
+		sg.shop_goods_id ) a ON
+		a.goods_comment_id = gc.goods_comment_id
+		WHERE
+		1 = 1
+		GROUP BY
+		a.shop_goods_id
+		) aa ON aa.shop_goods_id= sg.shop_goods_id
+		where
+		1=1
+		and
+		sg.shop_goods_ifzhixiao=0
+		<if test="pd.goodsid!=null">and sg.shop_goods_id=#{pd.goodsid}</if>
+		<if test="pd.classkeywords!=null and pd.classkeywords!=''">
+			and
+			sg.shop_goods_class LIKE CONCAT
+			(CONCAT('%',#{pd.classkeywords}),'%')
+		</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sg.shop_goods_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_priority LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_color LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_profession LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_manufactureradd LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+
+			or
+			sg.shop_goods_brand LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_model LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_texture LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_unit LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_origin LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_explain LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_server LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_discount LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_freight LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_market LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by sg.shop_goods_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_goods_id'">
+				sg.shop_goods_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			<if test="pd.sortField=='colorname'">
+				aa.shop_goods_color_name
+			</if>
+			<if test="pd.sortField=='unitname'">
+				ss.shop_goods_unit_name
+			</if>
+			<if test="pd.sortField=='shop_goods_class'">
+				sg.shop_goods_class
+			</if>
+			<if test="pd.sortField=='feedback'">
+				aa.shop_goods_feedback
+			</if>
+			<if test="pd.sortField=='shop_goods_priority'">
+				sg.shop_goods_priority
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_goods_id'">
+				sg.shop_goods_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			<if test="pd.sortField=='colorname'">
+				aa.shop_goods_color_name
+			</if>
+			<if test="pd.sortField=='unitname'">
+				ss.shop_goods_unit_name
+			</if>
+			<if test="pd.sortField=='shop_goods_class'">
+				sg.shop_goods_class
+			</if>
+			<if test="pd.sortField=='feedback'">
+				aa.shop_goods_feedback
+			</if>
+			<if test="pd.sortField=='shop_goods_priority'">
+				sg.shop_goods_priority
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getAllShopZhiXiaoGoodsListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		sg.*,
+		IFNULL(aa.shop_goods_feedback,0) AS feedback,
+		ss.shop_goods_unit_name as unitname,
+		aa.shop_goods_color_name as
+		colorname,
+		bb.shop_goods_worktype_name as
+		worktypename,
+		cc.shop_warehouse_name as manufacturersname
+		from
+		shop_goods sg
+		left join
+		shop_goods_unit ss on
+		ss.shop_goods_unit_id =
+		sg.shop_goods_unit
+		left
+		join shop_goods_color
+		aa on
+		aa.shop_goods_color_id = sg.shop_goods_color
+		left join
+		shop_goods_worktype bb on bb.shop_goods_worktype_id =
+		sg.shop_goods_profession
+		left join
+		shop_warehouse cc on
+		cc.shop_warehouse_id =
+		sg.shop_goods_manufacturers
+		LEFT JOIN
+		(
+		SELECT
+		a.shop_goods_id,
+		IFNULL(count(a.shop_goods_id),0),
+		SUM(gc.goods_comment_level),
+		IFNULL(SUM(gc.goods_comment_level)/IFNULL(count(a.shop_goods_id),0),0)
+		AS shop_goods_feedback
+		FROM
+		goods_comment gc
+		LEFT JOIN ( SELECT sgc.*,
+		sg.shop_goods_name AS goodsname FROM
+		shop_goods_comment sgc LEFT JOIN
+		shop_goods sg ON sgc.shop_goods_id =
+		sg.shop_goods_id ) a ON
+		a.goods_comment_id = gc.goods_comment_id
+		WHERE
+		1 = 1
+		GROUP BY
+		a.shop_goods_id
+		) aa ON aa.shop_goods_id= sg.shop_goods_id
+		where
+		1=1
+		and
+		sg.shop_goods_ifzhixiao=1
+		<if test="pd.goodsid!=null">and sg.shop_goods_id=#{pd.goodsid}</if>
+		<if test="pd.classkeywords!=null and pd.classkeywords!=''">
+			and
+			sg.shop_goods_class LIKE CONCAT
+			(CONCAT('%',#{pd.classkeywords}),'%')
+		</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sg.shop_goods_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_priority LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_color LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_profession LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_manufactureradd LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+
+			or
+			sg.shop_goods_brand LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_model LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_texture LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_unit LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_origin LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_explain LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_server LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_discount LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_freight LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_market LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by sg.shop_goods_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_goods_id'">
+				sg.shop_goods_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			<if test="pd.sortField=='colorname'">
+				aa.shop_goods_color_name
+			</if>
+			<if test="pd.sortField=='unitname'">
+				ss.shop_goods_unit_name
+			</if>
+			<if test="pd.sortField=='shop_goods_class'">
+				sg.shop_goods_class
+			</if>
+			<if test="pd.sortField=='feedback'">
+				aa.shop_goods_feedback
+			</if>
+			<if test="pd.sortField=='shop_goods_priority'">
+				sg.shop_goods_priority
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_goods_id'">
+				sg.shop_goods_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			<if test="pd.sortField=='colorname'">
+				aa.shop_goods_color_name
+			</if>
+			<if test="pd.sortField=='unitname'">
+				ss.shop_goods_unit_name
+			</if>
+			<if test="pd.sortField=='shop_goods_class'">
+				sg.shop_goods_class
+			</if>
+			<if test="pd.sortField=='feedback'">
+				aa.shop_goods_feedback
+			</if>
+			<if test="pd.sortField=='shop_goods_priority'">
+				sg.shop_goods_priority
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getAllShopGoodsSIzeListpage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		ss.*,
+		sg.shop_goods_name,
+		su.shop_specification_unit_name
+		FROM
+		shop_specification
+		ss
+		left JOIN shop_goods sg ON sg.shop_goods_id =
+		ss.shop_goods_id
+		LEFT JOIN shop_specification_unit su ON
+		su.shop_specification_unit_id
+		=ss.shop_specification_unit
+		where
+		1=1
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ss.shop_specification_id desc
+		</if>
+
+
+	</select>
+
+
+	<select id="getAllGoodsDataNeedAdd" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ss.shop_specification_id,
+		sg.shop_goods_name,
+		sg.shop_goods_id,
+		ss.shop_specification_inventory,
+		ss.shop_specification_remind
+		FROM
+		shop_specification ss
+		LEFT JOIN
+		shop_goods sg on sg.shop_goods_id =
+		ss.shop_goods_id
+		WHERE
+		1=1
+		AND
+		ss.shop_specification_inventory&lt;ss.shop_specification_remind
+	</select>
+
+
+	<select id="getOneShopgooddataByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		shop_goods sg
+		where
+		1=1
+		<if test="shop_goods_id!=null">and sg.shop_goods_id=#{shop_goods_id}</if>
+	</select>
+
+	<select id="getAllShopGoodsByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		shop_goods sg
+		where
+		1=1
+		<if test="colorid!=null">and sg.shop_goods_color=#{colorid}</if>
+		<if test="unitid!=null">and sg.shop_goods_unit=#{unitid}</if>
+		<if test="typeid!=null">and sg.shop_goods_profession=#{typeid}</if>
+	</select>
+
+	<select id="getAllShopgoodSizedataByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.*,
+		ss.shop_specification_unit_name as sizeunitname
+		from
+		shop_specification sg
+		left join shop_specification_unit ss on
+		ss.shop_specification_unit_id = shop_specification_unit
+		where
+		1=1
+		<if test="shop_goods_id!=null">and sg.shop_goods_id=#{shop_goods_id}</if>
+	</select>
+
+	<select id="getAllGoodsClass" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.shop_one_id as id,
+		'1' as classtype,
+		(sg.shop_one_id+100000) as
+		'key',
+		sg.shop_one_price as price,
+		sg.shop_one_name as title,
+		sg.shop_one_id as value,
+		sg.shop_one_name as label
+		from
+		shop_one_classify sg
+		where
+		1=1
+		<if test="zhixiao!=null and zhixiao=='no'">and sg.shop_goods_ifzhixiao=0</if>
+		<if test="zhixiao!=null and zhixiao=='yes'">and sg.shop_goods_ifzhixiao=1</if>
+		<if test="keywords!=null and keywords!=''">
+			and
+			(
+			sg.shop_one_name LIKE CONCAT
+			(CONCAT('%',#{keywords}),'%')
+			)
+		</if>
+	</select>
+	<select id="getAllGoodsTwoClass" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.shop_two_id as id,
+		'2' as classtype,
+		(sg.shop_two_id+200000) as
+		'key',
+		st.shop_one_id AS parentid,
+		sg.shop_two_name as title,
+		sg.shop_two_id as value,
+		sg.shop_two_name as label
+		from
+		shop_two_classify sg
+		LEFT JOIN shop_one_two st ON sg.shop_two_id =
+		st.shop_two_id
+		where
+		1=1
+		<if test="zhixiao!=null and zhixiao=='no'">and sg.shop_goods_ifzhixiao=0</if>
+		<if test="zhixiao!=null and zhixiao=='yes'">and sg.shop_goods_ifzhixiao=1</if>
+		<if test="keywords!=null and keywords!=''">
+			and
+			(
+			sg.shop_two_name LIKE CONCAT
+			(CONCAT('%',#{keywords}),'%')
+			)
+		</if>
+	</select>
+	<select id="getAllGoodsThreeClass" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.shop_three_id as id,
+		(sg.shop_three_id+300000) as 'key',
+		'3' as
+		classtype,
+		st.shop_two_id as parentid,
+		sg.shop_three_name as title,
+		sg.shop_three_id as value,
+		sg.shop_three_name as label
+		from
+		shop_three_classify sg
+		LEFT JOIN shop_two_three st ON sg.shop_three_id
+		= st.shop_three_id
+		where
+		1=1
+		<if test="zhixiao!=null and zhixiao=='no'">and sg.shop_goods_ifzhixiao=0</if>
+		<if test="zhixiao!=null and zhixiao=='yes'">and sg.shop_goods_ifzhixiao=1</if>
+		<if test="keywords!=null and keywords!=''">
+			and
+			(
+			sg.shop_three_name LIKE CONCAT
+			(CONCAT('%',#{keywords}),'%')
+			)
+		</if>
+	</select>
+	<select id="getOneAndTwoRealtionClass" parameterType="PageData"
+		resultType="PageData">
+		select
+		s.*
+		from
+		shop_one_two s
+		where
+		1=1
+	</select>
+
+
+
+
+
+	<select id="getTwoAndThreeRealtionClass"
+		parameterType="PageData" resultType="PageData">
+		select
+		s.*
+		from
+		shop_two_three s
+		where
+		1=1
+	</select>
+
+	<select id="getAllGoodsGuige" parameterType="PageData"
+		resultType="PageData">
+		select
+		ss.shop_specification_id as id,
+		ss.shop_specification_name AS guigename
+		from
+		shop_specification ss
+		where
+		1=1
+
+	</select>
+
+	<select id="SelectAllGoodsDataByDaima" parameterType="PageData"
+		resultType="PageData">
+		select
+		ss.shop_goods_id
+		from
+		shop_goods ss
+		where
+		1=1
+		and
+		shop_goods_priority=#{shop_goods_priority}
+		and
+		shop_goods_ifzhixiao=#{shop_goods_ifzhixiao}
+	</select>
+
+	<select id="SelectAllGoodsSizeDataByDaima"
+		parameterType="PageData" resultType="PageData">
+		select
+		ss.shop_specification_id
+		from
+		shop_specification ss
+		where
+		1=1
+		and
+		shop_specification_priority=#{shop_specification_priority}
+		and
+		shop_specification_ifzhixiao=#{shop_specification_ifzhixiao}
+	</select>
+
+	<delete id="deleteOneShopGoodDataByid" parameterType="PageData">
+		<if test="goodsid!=null and goodsid!=''">
+			delete from
+			shop_goods
+			where
+			1=1
+			<if test="goodsid!=null and goodsid!=''">and shop_goods_id=#{goodsid}</if>
+		</if>
+	</delete>
+
+	<delete id="deleteNewGoodssize" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_specification
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_specification_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deleteAllNewGoodssize" parameterType="PageData">
+		<if test="goodsid!=null and goodsid!=''">
+			delete from
+			shop_specification
+			where
+			1=1
+			<if test="goodsid!=null and goodsid!=''">and shop_goods_id=#{goodsid}</if>
+		</if>
+	</delete>
+
+	<update id="updataGoodsdataByid" parameterType="PageData">
+		UPDATE shop_goods
+		SET
+		shop_goods_name=#{shop_goods_name},shop_goods_picture=#{shop_goods_picture},shop_goods_pictures=#{shop_goods_pictures},shop_goods_color=#{shop_goods_color},shop_goods_profession=#{shop_goods_profession},shop_goods_manupicture=#{shop_goods_manupicture},shop_goods_manufactureradd=#{shop_goods_manufactureradd},shop_goods_brand=#{shop_goods_brand},shop_goods_model=#{shop_goods_model},shop_goods_texture=#{shop_goods_texture},shop_goods_address=#{shop_goods_address},shop_goods_unit=#{shop_goods_unit},shop_goods_origin=#{shop_goods_origin},shop_goods_server=#{shop_goods_server},shop_goods_explain=#{shop_goods_explain},shop_goods_feedback=#{shop_goods_feedback},shop_goods_discount=#{shop_goods_discount},shop_goods_market=#{shop_goods_market},shop_goods_freight=#{shop_goods_freight},shop_goods_class=#{shop_goods_class},shop_goods_manufacturers=#{shop_goods_manufacturers},shop_goods_priority=#{shop_goods_priority}
+		WHERE
+		1=1
+		and shop_goods_id=#{shop_goods_id}
+		and
+		shop_goods_ifzhixiao=#{shop_goods_ifzhixiao}
+	</update>
+
+	<update id="updateGoodsSizeById" parameterType="PageData">
+		UPDATE
+		shop_specification
+		SET
+		shop_specification_name=#{shop_specification_name},shop_specification_picture=#{shop_specification_picture},shop_specification_pcsaleprice=#{shop_specification_pcsaleprice},shop_specification_price=#{shop_specification_price},shop_specification_unit=#{shop_specification_unit},shop_specification_inventory=#{shop_specification_inventory},shop_specification_remind=#{shop_specification_remind},shop_specification_status=#{shop_specification_status},shop_specification_priority=#{shop_specification_priority}
+		WHERE shop_specification_id=#{shop_specification_id}
+	</update>
+
+	<update id="updateGoodsClassInOneClassify"
+		parameterType="PageData">
+		UPDATE shop_one_classify
+		SET
+		shop_one_name=#{classname},
+		shop_one_price = #{shop_one_price}
+		WHERE shop_one_id=#{id}
+	</update>
+
+	<update id="UpdateGoodsAndThreeRealtion"
+		parameterType="PageData">
+		UPDATE shop_three_goods
+		SET
+		shop_three_id=#{shop_three_id}
+		WHERE shop_goods_id=#{shop_goods_id}
+	</update>
+
+	<delete id="deleteGoodsClassInOneClassify"
+		parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_one_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_one_id=#{id}</if>
+		</if>
+	</delete>
+
+	<update id="updateGoodsClassInTwoClassify"
+		parameterType="PageData">
+		UPDATE shop_two_classify
+		SET
+		shop_two_name=#{classname}
+		WHERE shop_two_id=#{id}
+	</update>
+
+	<delete id="deleteGoodsClassInTwoClassify"
+		parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_two_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_two_id=#{id}</if>
+		</if>
+	</delete>
+
+	<update id="updateGoodsClassInThreeClassify"
+		parameterType="PageData">
+		UPDATE shop_three_classify
+		SET
+		shop_three_name=#{classname}
+		WHERE shop_three_id=#{id}
+	</update>
+
+	<update id="updateNewGoodssize" parameterType="map">
+		UPDATE
+		shop_specification
+		SET
+		shop_specification_name=#{shop_specification_name},shop_specification_price=#{shop_specification_price},shop_specification_unit=#{shop_specification_unit},shop_specification_pcsaleprice=#{shop_specification_pcsaleprice},shop_specification_inventory=#{shop_specification_inventory},shop_specification_remind=#{shop_specification_remind},shop_specification_priority=#{shop_specification_priority}
+		WHERE shop_specification_id=#{shop_specification_id}
+	</update>
+	<insert id="addNewGoodssize" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_specification_id"
+		keyProperty="shop_specification_id">
+		INSERT INTO
+		shop_specification(shop_goods_id,shop_specification_name,shop_specification_price,shop_specification_unit,shop_specification_pcsaleprice,shop_specification_inventory,shop_specification_remind,shop_specification_priority,shop_specification_ifzhixiao)
+		VALUE(#{shop_goods_id},#{shop_specification_name},#{shop_specification_price},#{shop_specification_unit},#{shop_specification_pcsaleprice},#{shop_specification_inventory},#{shop_specification_remind},#{shop_specification_priority},#{shop_specification_ifzhixiao});
+	</insert>
+
+	<insert id="addOneNewGoodssize" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="shop_specification_id"
+		keyProperty="shop_specification_id">
+		INSERT INTO
+		shop_specification(shop_goods_id,shop_specification_name,shop_specification_price,shop_specification_unit,shop_specification_pcsaleprice,shop_specification_inventory,shop_specification_remind,shop_specification_priority)
+		VALUE(#{shop_goods_id},#{shop_specification_name},#{shop_specification_price},#{shop_specification_unit},#{shop_specification_pcsaleprice},#{shop_specification_inventory},#{shop_specification_remind},#{shop_specification_priority});
+	</insert>
+	<delete id="deleteGoodsClassInThreeClassify"
+		parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_three_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_three_id=#{id}</if>
+		</if>
+	</delete>
+
+
+	<insert id="addGoodsdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_goods_id"
+		keyProperty="shop_goods_id">
+		INSERT INTO
+		shop_goods(shop_goods_id,shop_goods_name,shop_goods_picture,shop_goods_pictures,shop_goods_color,shop_goods_profession,shop_goods_manupicture,shop_goods_manufactureradd,shop_goods_brand,shop_goods_model,shop_goods_texture,shop_goods_address,shop_goods_unit,shop_goods_origin,shop_goods_explain,shop_goods_discount,shop_goods_freight,shop_goods_class,shop_goods_priority,shop_goods_manufacturers,shop_goods_ifzhixiao)
+		VALUE(#{shop_goods_id},#{shop_goods_name},#{shop_goods_picture},#{shop_goods_pictures},#{shop_goods_color},#{shop_goods_profession},#{shop_goods_manupicture},#{shop_goods_manufactureradd},#{shop_goods_brand},#{shop_goods_model},#{shop_goods_texture},#{shop_goods_address},#{shop_goods_unit},#{shop_goods_origin},#{shop_goods_explain},#{shop_goods_discount},#{shop_goods_freight},#{shop_goods_class},#{shop_goods_priority},#{shop_goods_manufacturers},#{shop_goods_ifzhixiao});
+	</insert>
+
+	<insert id="addOneGoodsdata" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="shop_goods_id"
+		keyProperty="shop_goods_id">
+		INSERT INTO
+		shop_goods(shop_goods_id,shop_goods_name,shop_goods_picture,shop_goods_pictures,shop_goods_color,shop_goods_profession,shop_goods_manupicture,shop_goods_manufactureradd,shop_goods_brand,shop_goods_model,shop_goods_texture,shop_goods_address,shop_goods_unit,shop_goods_origin,shop_goods_explain,shop_goods_discount,shop_goods_freight,shop_goods_class,shop_goods_priority,shop_goods_manufacturers,shop_goods_ifzhixiao)
+		VALUE(#{shop_goods_id},#{shop_goods_name},#{shop_goods_picture},#{shop_goods_pictures},#{shop_goods_color},#{shop_goods_profession},#{shop_goods_manupicture},#{shop_goods_manufactureradd},#{shop_goods_brand},#{shop_goods_model},#{shop_goods_texture},#{shop_goods_address},#{shop_goods_unit},#{shop_goods_origin},#{shop_goods_explain},#{shop_goods_discount},#{shop_goods_freight},#{shop_goods_class},#{shop_goods_priority},#{shop_goods_manufacturers},#{shop_goods_ifzhixiao});
+	</insert>
+
+	<insert id="addGoodsSizeById" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="shop_specification_id"
+		keyProperty="shop_specification_id">
+		INSERT INTO
+		shop_specification(shop_goods_id,shop_specification_name,shop_specification_picture,shop_specification_pcsaleprice,shop_specification_price,shop_specification_unit,shop_specification_inventory,shop_specification_remind,shop_specification_creatime,shop_specification_status,shop_specification_priority,shop_specification_ifzhixiao)
+		VALUE(#{shop_goods_id},#{shop_specification_name},#{shop_specification_picture},#{shop_specification_pcsaleprice},#{shop_specification_price},#{shop_specification_unit},#{shop_specification_inventory},#{shop_specification_remind},#{shop_specification_creatime},#{shop_specification_status},#{shop_specification_priority},#{shop_specification_ifzhixiao});
+	</insert>
+
+	<insert id="addGoodsClassInOneClassify" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="shop_one_id"
+		keyProperty="shop_one_id">
+		INSERT INTO
+		shop_one_classify(shop_one_name,shop_one_creatime,shop_one_status,shop_one_price,shop_goods_ifzhixiao)
+		VALUE(#{shop_one_name},#{shop_one_creatime},#{shop_one_status},#{shop_one_price},#{shop_goods_ifzhixiao});
+	</insert>
+
+	<insert id="addGoodsAndThreeRealtion" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="three_goods_id"
+		keyProperty="three_goods_id">
+		INSERT INTO
+		shop_three_goods(shop_three_id,shop_goods_id,three_goods_creatime,three_goods_status)
+		VALUE(#{shop_three_id},#{shop_goods_id},#{three_goods_creatime},#{three_goods_status});
+	</insert>
+
+	<insert id="addGoodsClassInTwoClassify" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="shop_two_id"
+		keyProperty="shop_two_id">
+		INSERT INTO
+		shop_two_classify(shop_two_name,shop_two_creatime,shop_two_status,shop_goods_ifzhixiao)
+		VALUE(#{shop_two_name},#{shop_two_creatime},#{shop_two_status},#{shop_goods_ifzhixiao});
+	</insert>
+
+	<insert id="addOneRealtionData" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="one_two_id"
+		keyProperty="one_two_id">
+		INSERT INTO
+		shop_one_two(shop_one_id,shop_two_id,one_two_creatime,ont_two_status)
+		VALUE(#{shop_one_id},#{shop_two_id},#{one_two_creatime},#{ont_two_status});
+	</insert>
+
+	<insert id="addGoodsClassInThreeClassify"
+		parameterType="PageData" useGeneratedKeys="true"
+		keyColumn="shop_two_id" keyProperty="shop_three_id">
+		INSERT INTO
+		shop_three_classify(shop_three_name,shop_three_creatime,shop_three_status,shop_goods_ifzhixiao)
+		VALUE(#{shop_three_name},#{shop_three_creatime},#{shop_three_status},#{shop_goods_ifzhixiao});
+	</insert>
+
+	<insert id="addTwoRealtionData" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="two_three_id"
+		keyProperty="two_three_id">
+		INSERT INTO
+		shop_two_three(shop_two_id,shop_three_id,two_three_creatime,two_three_status)
+		VALUE(#{shop_two_id},#{shop_three_id},#{two_three_creatime},#{two_three_status});
+	</insert>
+
+
+	<update id="updataGoodsAndThreeRelationData"
+		parameterType="PageData">
+		UPDATE
+		shop_three_goods
+		SET
+		shop_three_id=#{threeclassid}
+		WHERE
+		shop_goods_id=#{goodsid}
+	</update>
+
+
+	<delete id="deleteGoodsAndThreeRelationData"
+		parameterType="PageData">
+		<if test="goodsid!=null and goodsid!=''">
+			delete from
+			shop_three_goods
+			where
+			1=1
+			and
+			shop_goods_id=#{goodsid}
+		</if>
+	</delete>
+
+
+	<select id="SeleteOnedataByrelation" parameterType="PageData"
+		resultType="PageData">
+		select
+		s.*
+		from
+		shop_three_goods s
+		where
+		1=1
+		and
+		shop_goods_id=#{goodsid}
+	</select>
+
+
+	<insert id="addPictueData" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		INSERT INTO
+		shop_goods_pictures(name,url)
+		VALUE(#{name},#{url});
+	</insert>
+
+
+	<select id="getalldatabygoodsname" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.url
+		from
+		shop_goods_pictures sg
+		where
+		1=1
+		<if test="keywords!=null and keywords!=''">
+			and
+			(
+			sg.name LIKE CONCAT
+			(CONCAT('%',#{keywords}),'%')
+			)
+		</if>
+	</select>
+
+	<select id="selectOneEmail" resultType="PageData">
+		select
+		sf.email
+		from
+		shop_freight sf
+		where
+		1=1
+		and
+		sf.shop_freight_id = 15
+	</select>
+
+
+	<select id="getOnePictureDatabyName" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		shop_goods_pictures sg
+		where
+		1=1
+		<if test="name!=null">and sg.name=#{name}</if>
+	</select>
+
+
+	<update id="updatePictueData" parameterType="PageData">
+		UPDATE
+		shop_goods_pictures
+		SET
+		url=#{url}
+		WHERE
+		name=#{name}
+	</update>
+
+	<select id="getSn" resultType="Integer">
+		select
+		count(*)
+		from
+		${table}
+	</select>
+</mapper>

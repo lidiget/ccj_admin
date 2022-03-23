@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.CardDao">
+	<select id="getAllCardListPage" parameterType="Page"
+		resultType="PageData">
+		select
+		sc.*,
+	    ( CASE WHEN DATE_FORMAT( sc.coupon_hours, '%Y-%m-%d' ) > DATE_FORMAT( NOW( ), '%Y-%m-%d' ) THEN sc.coupon_status ELSE 3 END ) AS cardstatus 
+		from
+		shop_coupon
+		sc
+		where 1=1
+		<if test="pd.id!=null">and sc.coupon_id=#{pd.id}</if>
+		<if test="pd.fenfa!=null">and FIND_IN_SET(sc.coupon_status,#{'0,1'})</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sc.coupon_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_type LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_moeny LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_explain LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_front LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by sc.coupon_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='coupon_id'">
+				sc.coupon_id
+			</if>
+			<if test="pd.sortField=='coupon_type'">
+				sc.coupon_type
+			</if>
+			<if test="pd.sortField=='coupon_explain'">
+				sc.coupon_explain
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				sc.coupon_moeny
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='coupon_id'">
+				sc.coupon_id
+			</if>
+			<if test="pd.sortField=='coupon_type'">
+				sc.coupon_type
+			</if>
+			<if test="pd.sortField=='coupon_explain'">
+				sc.coupon_explain
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				sc.coupon_moeny
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getAllCardDistributionListPage" parameterType="Page"
+		resultType="PageData">
+		select
+		uc.*,
+		sc.coupon_type,
+		sc.coupon_front,
+		sc.coupon_hours,
+		sc.coupon_explain,
+		sc.coupon_status,
+		ui.user_name,
+		ui.user_realname,
+		ui.user_phone,
+		ui.user_address
+		from
+		user_coupon
+		uc
+		LEFT JOIN
+		shop_coupon
+		sc
+		ON
+		sc.coupon_id = uc.coupon_id
+		LEFT JOIN
+		user_info
+		ui
+		ON
+		ui.user_id =
+		uc.user_id
+		where 1=1
+		<if test="pd.id!=null">and uc.user_coupon_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			uc.user_coupon_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_type LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_moeny LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_explain LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sc.coupon_front LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_realname LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_phone LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by uc.user_coupon_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='user_coupon_id'">
+				uc.user_coupon_id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				ui.user_id
+			</if>
+			<if test="pd.sortField=='user_name'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='user_realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='user_phone'">
+				ui.user_phone
+			</if>
+			<if test="pd.sortField=='user_address'">
+				ui.user_address
+			</if>
+			<if test="pd.sortField=='coupon_type'">
+				sc.coupon_type
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='user_coupon_id'">
+				uc.user_coupon_id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				ui.user_id
+			</if>
+			<if test="pd.sortField=='user_name'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='user_realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='user_phone'">
+				ui.user_phone
+			</if>
+			<if test="pd.sortField=='user_address'">
+				ui.user_address
+			</if>
+			<if test="pd.sortField=='coupon_type'">
+				sc.coupon_type
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getAllUserCardList" parameterType="PageData"
+		resultType="PageData">
+		select
+		sc.*
+		from
+		user_coupon
+		sc
+		where 1=1
+		<if test="id!=null">and sc.coupon_id=#{id}</if>
+	</select>
+
+	<update id="updataCarddataByid" parameterType="PageData">
+		UPDATE
+		shop_coupon
+		SET
+		coupon_type=#{coupon_type},coupon_moeny=#{coupon_moeny},coupon_explain=#{coupon_explain},coupon_front=#{coupon_front},coupon_hours=#{coupon_hours},coupon_status=#{coupon_status}
+		WHERE
+		coupon_id=#{coupon_id}
+	</update>
+
+	<update id="updataCardstatusdataByid" parameterType="PageData">
+		UPDATE
+		shop_coupon
+		SET
+		coupon_status=#{coupon_status}
+		WHERE
+		coupon_id=#{coupon_id}
+	</update>
+
+	<insert id="addCarddata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="coupon_id" keyProperty="coupon_id">
+		INSERT INTO
+		shop_coupon(coupon_type,coupon_moeny,coupon_explain,coupon_front,coupon_hours,coupon_creatime,coupon_status)
+		VALUE(#{coupon_type},#{coupon_moeny},#{coupon_explain},#{coupon_front},#{coupon_hours},#{coupon_creatime},#{coupon_status});
+	</insert>
+
+	<insert id="addCardFenfaData" parameterType="map"
+		useGeneratedKeys="true" keyColumn="user_coupon_id"
+		keyProperty="user_coupon_id">
+		INSERT INTO
+		user_coupon(user_id,coupon_id,user_coupon_creatime,user_coupon_status)
+		VALUE(#{user_id},#{coupon_id},#{user_coupon_creatime},#{user_coupon_status});
+	</insert>
+
+	<delete id="deleteOneCarddataByid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_coupon
+			where
+			1=1
+			<if test="id!=null and id!=''">and coupon_id=#{id}</if>
+		</if>
+	</delete>
+	
+	
+	<update id="updataAllzhuguanid" parameterType="PageData">
+		UPDATE
+		sys_sell
+		SET
+		zhuguan_id=#{zhuguanid}
+		WHERE
+		id=#{needid}
+	</update>
+	
+	<update id="updataUserzhuguanid" parameterType="PageData">
+		UPDATE
+		sys_user
+		SET
+		sell_leve=#{sell_leve}
+		WHERE
+		user_id=#{user_id}
+	</update>
+	
+	
+	<select id="getUseridBySellid" parameterType="PageData"
+		resultType="PageData">
+		select
+		sc.*
+		from
+		sys_sell
+		sc
+		where 1=1
+		<if test="id!=null">and sc.id=#{id}</if>
+	</select>
+</mapper>

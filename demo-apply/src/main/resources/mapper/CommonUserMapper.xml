@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.CommonUserDao">
+	<select id="getAllCommonUsersDataListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ui.*
+		from
+		user_info ui
+		where 1=1
+		<if test="pd.userid!=null">and ui.user_id=#{pd.userid}</if>
+		<if test="pd.sell_id!=null">and ui.sell_id=#{pd.sell_id}</if>
+		<if test="pd.novip!=null and pd.novip!=''">
+			and ui.user_integral&lt;(
+			SELECT um.shop_freight_menoy FROM
+			shop_freight um WHERE 1=1 AND
+			um.shop_freight_id = '7'
+			)
+		</if>
+		<if test="pd.vip!=null and pd.vip!=''">
+			and ui.user_integral&gt;=(
+			SELECT um.shop_freight_menoy
+			FROM shop_freight um WHERE 1=1 AND
+			um.shop_freight_id = '7'
+			)
+		</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ui.user_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_realname LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_phone LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_saltvalue LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_phone LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_identity LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_wechat_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_integral LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_remark LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ui.user_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='user_id'">
+				ui.user_id
+			</if>
+			<if test="pd.sortField=='user_name'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='user_realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='user_address'">
+				ui.user_address
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='user_id'">
+				ui.user_id
+			</if>
+			<if test="pd.sortField=='user_name'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='user_realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='user_address'">
+				ui.user_address
+			</if>
+			ASC
+		</if>
+
+
+	</select>
+	<select id="getOneCommonUserDataByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		ui.*
+		from
+		user_info ui
+		where
+		1=1
+		<if test="user_id!=null">and ui.user_id=#{user_id}</if>
+	</select>
+
+	<delete id="deleteOneCommonuserdataByid"
+		parameterType="PageData">
+		<if test="user_id!=null and user_id!=''">
+			delete from
+			user_info
+			where
+			1=1
+			<if test="user_id!=null and user_id!=''">and user_id=#{user_id}</if>
+		</if>
+	</delete>
+
+	<update id="updataCommonuserdataByid" parameterType="PageData">
+		UPDATE
+		user_info SET
+		user_name=#{user_name},user_realname=#{user_realname},user_identity=#{user_identity},user_address=#{user_address},user_wechat_id=#{user_wechat_id},user_wechat_name=#{user_wechat_name},user_status=#{user_status},user_remark=#{user_remark},user_files=#{user_files}
+		WHERE user_id=#{user_id}
+	</update>
+	
+	
+	<update id="updatesellidbyuserid" parameterType="PageData">
+		UPDATE
+		user_info SET
+		sell_id=#{sell_id}
+		WHERE user_id=#{user_id}
+	</update>
+	
+	<select id="SelectUserData" parameterType="PageData"
+		resultType="PageData">
+		<if test="user_name !=null and user_name !=''">
+			Select user_id,user_name from user_info where
+			user_name=#{user_name}
+			LIMIT 1
+		</if>
+	</select>
+	<select id="SelectPhone" parameterType="map" resultType="map">
+		<if test="user_name !=null and user_name !=''">
+			Select user_id,user_name from user_info where
+			user_name=#{user_name}
+			LIMIT 1
+		</if>
+	</select>
+	
+	<insert id="addCommonuserdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="user_id" keyProperty="user_id">
+		INSERT INTO
+		user_info(user_name,user_realname,user_identity,user_address,user_wechat_id,user_wechat_name,user_status,user_remark,user_creatime,user_encryption,user_saltvalue,user_integral,user_files)
+		VALUE(#{user_name},#{user_realname},#{user_identity},#{user_address},#{user_wechat_id},#{user_wechat_name},#{user_status},#{user_remark},#{user_creatime},#{user_encryption},#{user_saltvalue},#{user_integral},#{user_files});
+	</insert>
+	<update id="UpdatepwdbyCommonuserid" parameterType="PageData">
+		<if test="user_id != null and user_id !=''">
+			UPDATE user_info SET
+			user_saltvalue=#{user_saltvalue},user_encryption=#{user_encryption}
+			WHERE BINARY user_id=#{user_id}
+		</if>
+	</update>
+	<update id="updateMemberSettingByid" parameterType="PageData">
+		<if test="id != null and id !=''">
+			UPDATE user_membersetting SET
+			settingnumber=#{membernumber}
+			WHERE BINARY id=#{id}
+		</if>
+	</update>
+	<select id="getMemberSettingByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		us.*
+		from
+		user_membersetting us
+		where
+		1=1
+		<if test="id!=null">and us.id=#{id}</if>
+	</select>
+</mapper>

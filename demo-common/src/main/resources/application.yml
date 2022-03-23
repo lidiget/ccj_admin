@@ -1,0 +1,24 @@
+server:
+  port: 8084
+  tomcat:
+    max-http-form-post-size: 0
+spring:
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
+  jpa:
+    dabase: mysql
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/caijiajia?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
+    username: root
+    password: 123
+  dbcp2:
+    max-wait-millis: 100000
+    max-idle: 35
+    min-idle: 10
+    initial-size: 10
+    validation-query: SELECT x
+    connection-properties: characterEncoding=utf8
+  aop:
+    auto: true

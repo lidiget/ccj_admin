@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.UserDao">
+	<!-- 登录 -->
+	<select id="CaiLogin" parameterType="map" resultType="map">
+		<if test="user_phone!= null and user_phone !='' ">
+			select
+			* from
+			sys_user where
+			phonenumber=#{user_phone} LIMIT
+			1
+		</if>
+	</select>
+	<!-- 查询手机号 -->
+	<select id="SelectPhone" parameterType="map" resultType="map">
+		<if test="user_phone !=null and user_phone !=''">
+			Select user_id,phonenumber from sys_user where
+			phonenumber=#{user_phone}
+			LIMIT 1
+		</if>
+	</select>
+	<!-- 注册 -->
+	<insert id="InsertUser" parameterType="map"
+		useGeneratedKeys="true" keyColumn="user_id" keyProperty="user_id">
+		INSERT INTO
+		sys_user(dept_id,user_name,nick_name,user_type,email,create_time,phonenumber,sex,password,status,user_saltvalue,user_encryption,role_id,sell_leve)
+		VALUE(#{dept_id},#{user_name},#{nick_name},#{user_type},#{email},#{create_time},#{phonenumber},#{sex},#{password},#{status},#{user_saltvalue},#{user_encryption},#{role_id},#{sell_leve});
+	</insert>
+	<!-- 添加权限表 -->
+	<insert id="InsertUrole" parameterType="map">
+		<if test="user_id != null and user_id != ''">
+			INSERT INTO
+			user_role(user_id,role_id,user_role_creatime,user_role_status)
+			VALUE(#{user_id},6,NOW(),1);
+		</if>
+	</insert>
+	<!-- 忘记密码 -->
+	<update id="Updatepwd" parameterType="map">
+		<if test="user_phone != null and user_phone !=''">
+			UPDATE user_info SET
+			user_saltvalue=#{user_saltvalue},user_encryption=#{user_encryption}
+			WHERE BINARY user_phone=#{user_phone}
+		</if>
+	</update>
+	<!-- 注册钱包表 -->
+	<insert id="InsertWallet" parameterType="map">
+		<if test="user_id != null and user_id != ''">
+			INSERT INTO
+			user_wallet(user_id,worker_id,wallet_balance,wallet_creatime,wallet_status)
+			values(#{user_id},#{worker_id},0,NOW(),1)
+		</if>
+	</insert>
+	<update id="UpdateIdentity" parameterType="PageData">
+		<if test="user_phone != null and user_phone !=''">
+			UPDATE user_worker SET
+			worker_name=#{worker_name},worker_number=#{worker_number},worker_authentication=#{worker_authentication}
+			WHERE worker_id=#{worker_id}
+		</if>
+	</update>
+	<select id="getAllAdminList" parameterType="Page"
+		resultType="PageData">
+		select
+		d.*,
+		sd.dept_name AS deptname
+		from
+		sys_user
+		d
+		LEFT JOIN sys_dept sd
+		on d.dept_id = sd.dept_id
+		where 1=1
+		<if test="pd.deptid!=null">and d.dept_id=#{pd.deptid}</if>
+		<if test="pd.alldeptid!=null and pd.alldeptid!=''">and FIND_IN_SET(d.dept_id,#{pd.alldeptid})</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sd.dept_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			d.user_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			d.user_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			d.nick_name
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			d.user_type LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			d.email LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			d.phonenumber LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by d.user_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='user_name'">
+				d.user_name
+			</if>
+			<if test="pd.sortField=='user_id'">
+				d.user_id
+			</if>
+			<if test="pd.sortField=='nick_name'">
+				d.nick_name
+			</if>
+			<if test="pd.sortField=='phonenumber'">
+				d.phonenumber
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='user_name'">
+				d.user_name
+			</if>
+			<if test="pd.sortField=='user_id'">
+				d.user_id
+			</if>
+			<if test="pd.sortField=='nick_name'">
+				d.nick_name
+			</if>
+			<if test="pd.sortField=='phonenumber'">
+				d.phonenumber
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getAllUserOperationRecordListpage"
+		parameterType="Page" resultType="PageData">
+		SELECT
+		oi.*,
+		ui.user_name AS username
+		FROM
+		user_operation_record oi
+		LEFT
+		JOIN sys_user ui ON ui.user_id = oi.user_id
+		where 1=1
+		<if test="pd.user_id!=null">and oi.user_id=#{pd.user_id}</if>
+		<if test="pd.bills_type!=null">and oi.bills_type=#{pd.bills_type}</if>
+		<if test="pd.id!=null">and oi.type_id=#{pd.id}</if>
+		<if test="pd.starttime!=null and pd.starttime!=''">
+			and
+			DATE_FORMAT(oi.user_operation_record_createtime,'%Y-%m-%d') &gt;=
+			#{pd.starttime}
+		</if>
+		<if test="pd.endtime!=null and pd.endtime!=''">
+			and
+			DATE_FORMAT(oi.user_operation_record_createtime,'%Y-%m-%d') &lt;=
+			#{pd.endtime}
+		</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			oi.user_operation_record_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			oi.user_operation_record_type LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			oi.user_operation_record_detail
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by oi.user_operation_record_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='user_operation_record_id'">
+				oi.user_operation_record_id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				oi.user_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='user_operation_record_type'">
+				oi.user_operation_record_type
+			</if>
+			<if test="pd.sortField=='user_operation_record_detail'">
+				oi.user_operation_record_detail
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='user_operation_record_id'">
+				oi.user_operation_record_id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				oi.user_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='user_operation_record_type'">
+				oi.user_operation_record_type
+			</if>
+			<if test="pd.sortField=='user_operation_record_detail'">
+				oi.user_operation_record_detail
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getOneAdminDataByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		su.*
+		,
+		ifnull(sd.dept_name,'') AS dept_name
+		,
+		ifnull(sr.role_name,'') AS role_name
+		from
+		sys_user su
+		LEFT JOIN sys_dept
+		sd on su.dept_id =
+		sd.dept_id
+		LEFT JOIN sys_role sr on su.role_id =
+		sr.role_id
+		where
+		1=1
+		<if test="userid!=null">and su.user_id=#{userid}</if>
+		<if test="user_phone!=null">and su.phonenumber=#{user_phone}</if>
+		<if test="user_password!=null">and su.password=#{user_password}</if>
+	</select>
+
+	<update id="updataAdmindataByid" parameterType="PageData">
+		UPDATE sys_user
+		SET
+		nick_name=#{nick_name},phonenumber=#{phonenumber},sex=#{sex},dept_id=#{dept_id},email=#{email},role_id=#{role_id},sell_leve=#{sell_leve}
+		WHERE user_id=#{user_id}
+	</update>
+	<update id="Updatepwdbyuserphone" parameterType="PageData">
+		<if test="phonenumber != null and phonenumber !=''">
+			UPDATE sys_user SET
+			user_saltvalue=#{user_saltvalue},user_encryption=#{user_encryption},password=#{password}
+			WHERE BINARY phonenumber=#{phonenumber}
+		</if>
+	</update>
+	<delete id="deleteOneAdmindataByid" parameterType="PageData">
+		<if test="userid!=null and userid!=''">
+			delete from
+			sys_user
+			where
+			1=1
+			<if test="userid!=null and userid!=''">and user_id=#{userid}</if>
+		</if>
+	</delete>
+	<!-- 查询手机号 -->
+	<select id="SelectOnebyAdminId" parameterType="PageData"
+		resultType="PageData">
+		Select user_id,phonenumber from sys_user where
+		phonenumber=#{phonenumber}
+	</select>
+
+
+	<select id="getAllDeptClass" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.dept_id as 'id',
+		sg.dept_id as 'key',
+		sg.dept_name as title,
+		sg.parent_id as parentid,
+		sg.ancestors
+		from
+		sys_dept sg
+		where
+		1=1
+		<if test="keywords!=null and keywords!=''">
+			and
+			(
+			sg.dept_name LIKE CONCAT
+			(CONCAT('%',#{keywords}),'%')
+			)
+		</if>
+	</select>
+
+	<select id="getAllSelling" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		sys_sell sg
+		where
+		1=1
+		and
+		sg.user_id = #{user_id}
+	</select>
+
+	<insert id="addDeptClassData" parameterType="map"
+		useGeneratedKeys="true" keyColumn="dept_id" keyProperty="dept_id">
+		INSERT INTO
+		sys_dept(parent_id,dept_name,create_time,ancestors)
+		VALUE(#{parent_id},#{dept_name},#{create_time},#{ancestors});
+	</insert>
+
+	<update id="updateDeptClassById" parameterType="PageData">
+		<if test="id != null and id !=''">
+			UPDATE sys_dept SET
+			dept_name=#{classname}
+			WHERE BINARY
+			dept_id=#{id}
+		</if>
+	</update>
+
+	<delete id="deleteDeptClassById" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			sys_dept
+			where
+			1=1
+			<if test="id!=null and id!=''">and dept_id=#{id}</if>
+		</if>
+	</delete>
+
+	<insert id="addSelluserdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		INSERT INTO
+		sys_sell(name,role,user_id)
+		VALUE(#{name},#{role},#{user_id});
+	</insert>
+
+	<insert id="addgenzongxinxibyuserid" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="user_track_id"
+		keyProperty="user_track_id">
+		INSERT INTO
+		user_track(user_id,user_track_file,user_track_remark,user_track_createtime)
+		VALUE(#{user_id},#{user_track_file},#{user_track_remark},#{user_track_createtime});
+	</insert>
+
+
+	<update id="updateSelluserdata" parameterType="PageData">
+		<if test="user_id != null and user_id !=''">
+			UPDATE sys_sell SET
+			name=#{nick_name}
+			WHERE BINARY
+			user_id=#{user_id}
+		</if>
+	</update>
+
+
+	<update id="updataAllSelldataByuserid" parameterType="PageData">
+		UPDATE user_info SET
+		sell_id=#{newsellid}
+		WHERE BINARY
+		sell_id=#{oldid}
+	</update>
+
+
+
+
+	<delete id="deleteOneSellUserByid" parameterType="PageData">
+		<if test="userid!=null and userid!=''">
+			delete from
+			sys_sell
+			where
+			1=1
+			<if test="userid!=null and userid!=''">and user_id=#{userid}</if>
+		</if>
+	</delete>
+
+
+
+	<select id="getUserDataByOrderid" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ui.user_id
+		FROM
+		user_info ui
+		WHERE
+		1 = 1
+		AND ui.sell_id
+		=(SELECT
+		id
+		FROM
+		sys_sell
+		WHERE
+		1=1
+		AND
+		user_id = #{id})
+		ORDER BY
+		ui.user_id
+		DESC
+	</select>
+
+
+	<select id="getAllueridBySellzhuguanid" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ss.id
+		FROM
+		sys_sell ss
+		WHERE
+		1 = 1
+		AND FIND_IN_SET(
+		ss.zhuguan_id,#{id} )
+	</select>
+
+	<select id="getTheSellidByUserid" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ui.*
+		FROM
+		sys_sell ui
+		WHERE
+		1 = 1
+		AND
+		ui.user_id=#{userid}
+	</select>
+
+	<select id="getAllUseridBysellid" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ss.user_id
+		FROM
+		user_info ss
+		WHERE
+		1 = 1
+		AND
+		ss.sell_id=#{id}
+	</select>
+
+
+
+
+	<select id="getAllTrackingDataByUseridListpage"
+		parameterType="Page" resultType="PageData">
+		SELECT
+		oi.*
+		FROM
+		user_track oi
+		where 1=1
+		<if test="pd.user_id!=null">and oi.user_id=#{pd.user_id}</if>
+		<if test="pd.starttime!=null and pd.starttime!=''">
+			and
+			DATE_FORMAT(oi.user_track_createtime,'%Y-%m-%d') &gt;=
+			#{pd.starttime}
+		</if>
+		<if test="pd.endtime!=null and pd.endtime!=''">
+			and
+			DATE_FORMAT(oi.user_track_createtime,'%Y-%m-%d') &lt;=
+			#{pd.endtime}
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by oi.user_track_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='user_track_id'">
+				oi.user_track_id
+			</if>
+			<if test="pd.sortField=='user_track_remark'">
+				oi.user_track_remark
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='user_track_id'">
+				oi.user_track_id
+			</if>
+			<if test="pd.sortField=='user_track_remark'">
+				oi.user_track_remark
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="selectuserdatabyphone" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ui.*
+		FROM
+		user_yuyue ui
+		WHERE
+		1 = 1
+		and
+		ui.phone = #{phone}
+	</select>
+
+	<insert id="addyuyuexinxi" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		INSERT INTO
+		user_yuyue(gender,name,phone)
+		VALUE(#{gender},#{name},#{phone});
+	</insert>
+
+
+
+	<select id="getAllNewPictures" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		oi.*
+		FROM
+		personal_pictures oi
+	</select>
+
+	<update id="updateAllNewPicturesByid" parameterType="PageData">
+		UPDATE personal_pictures SET
+		name=#{name}
+		WHERE BINARY
+		id=#{id}
+	</update>
+</mapper>

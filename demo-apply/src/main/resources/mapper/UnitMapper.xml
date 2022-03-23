@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.UnitDao">
+	<select id="getAllUnitsDataListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		shop_goods_unit
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.shop_goods_unit_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.shop_goods_unit_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.shop_goods_unit_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.shop_goods_unit_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_goods_unit_id'">
+				ir.shop_goods_unit_id
+			</if>
+			<if test="pd.sortField=='shop_goods_unit_name'">
+				ir.shop_goods_unit_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_goods_unit_id'">
+				ir.shop_goods_unit_id
+			</if>
+			<if test="pd.sortField=='shop_goods_unit_name'">
+				ir.shop_goods_unit_name
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getAllSizeUnitDataListPage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		shop_specification_unit
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.shop_specification_unit_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.shop_specification_unit_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.shop_specification_unit_name
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.shop_specification_unit_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_specification_unit_id'">
+				ir.shop_specification_unit_id
+			</if>
+			<if test="pd.sortField=='shop_specification_unit_name'">
+				ir.shop_specification_unit_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_specification_unit_id'">
+				ir.shop_specification_unit_id
+			</if>
+			<if test="pd.sortField=='shop_specification_unit_name'">
+				ir.shop_specification_unit_name
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getAllColorDataListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		shop_goods_color
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.shop_goods_color_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.shop_goods_color_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.shop_goods_color_name
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.shop_goods_color_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_goods_color_id'">
+				ir.shop_goods_color_id
+			</if>
+			<if test="pd.sortField=='shop_goods_color_name'">
+				ir.shop_goods_color_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_goods_color_id'">
+				ir.shop_goods_color_id
+			</if>
+			<if test="pd.sortField=='shop_goods_color_name'">
+				ir.shop_goods_color_name
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getAllWorkTypeDataListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		shop_goods_worktype
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.shop_goods_worktype_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.shop_goods_worktype_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.shop_goods_worktype_name
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.shop_goods_worktype_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_goods_worktype_id'">
+				ir.shop_goods_worktype_id
+			</if>
+			<if test="pd.sortField=='shop_goods_worktype_name'">
+				ir.shop_goods_worktype_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_goods_worktype_id'">
+				ir.shop_goods_worktype_id
+			</if>
+			<if test="pd.sortField=='shop_goods_worktype_name'">
+				ir.shop_goods_worktype_name
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getAllLogisticssDataListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		shop_order_logistics
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.shop_order_logistics_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.shop_order_logistics_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.shop_order_logistics_name
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.shop_order_logistics_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_order_logistics_id'">
+				ir.shop_order_logistics_id
+			</if>
+			<if test="pd.sortField=='shop_order_logistics_name'">
+				ir.shop_order_logistics_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_order_logistics_id'">
+				ir.shop_order_logistics_id
+			</if>
+			<if test="pd.sortField=='shop_order_logistics_name'">
+				ir.shop_order_logistics_name
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getAllSellingDataListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*
+		from
+		shop_warehouse
+		ir
+		where
+		1=1
+		<if test="pd.id!=null">and ir.shop_warehouse_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.shop_warehouse_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.shop_warehouse_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.shop_warehouse_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='shop_warehouse_id'">
+				ir.shop_warehouse_id
+			</if>
+			<if test="pd.sortField=='shop_warehouse_name'">
+				ir.shop_warehouse_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='shop_warehouse_id'">
+				ir.shop_warehouse_id
+			</if>
+			<if test="pd.sortField=='shop_warehouse_name'">
+				ir.shop_warehouse_name
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+
+	<select id="getAllSellingAddressListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*,
+		sw.shop_warehouse_name
+		from
+		shop_warehouse_classify
+		ir
+		left join shop_warehouse sw on sw.shop_warehouse_id = ir.shop_warehouse_id
+		where
+		1=1
+		<if test="pd.id!=null">and ir.shop_warehouse_id=#{pd.id}</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.warehouse_classify_id desc
+		</if>
+
+	</select>
+
+	<insert id="addsellingAddressdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="warehouse_classify_id"
+		keyProperty="warehouse_classify_id">
+		INSERT INTO
+		shop_warehouse_classify(shop_warehouse_id,warehouse_classify_name,warehouse_classify_creatime,warehouse_classify_status)
+		VALUE(#{shop_warehouse_id},#{warehouse_classify_name},#{warehouse_classify_creatime},#{warehouse_classify_status});
+	</insert>
+
+	<insert id="addsellingdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_warehouse_id"
+		keyProperty="shop_warehouse_id">
+		INSERT INTO
+		shop_warehouse(shop_warehouse_name,shop_warehouse_creatime,shop_warehouse_status,shop_warehouse_manupicture,lat,lon,city)
+		VALUE(#{shop_warehouse_name},#{shop_warehouse_creatime},#{shop_warehouse_status},#{shop_warehouse_manupicture},#{lat},#{lon},#{city});
+	</insert>
+
+	<insert id="addcolordata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_goods_color_id"
+		keyProperty="shop_goods_color_id">
+		INSERT INTO
+		shop_goods_color(shop_goods_color_name,shop_goods_color_creatime)
+		VALUE(#{shop_goods_color_name},#{shop_goods_color_creatime});
+	</insert>
+
+	<insert id="addunitdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_goods_unit_id"
+		keyProperty="shop_goods_unit_id">
+		INSERT INTO
+		shop_goods_unit(shop_goods_unit_name,shop_goods_unit_creatime)
+		VALUE(#{shop_goods_unit_name},#{shop_goods_unit_creatime});
+	</insert>
+
+	<insert id="addsizeunitdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_specification_unit_id"
+		keyProperty="shop_specification_unit_id">
+		INSERT INTO
+		shop_specification_unit(shop_specification_unit_name,shop_specification_unit_creatime)
+		VALUE(#{shop_specification_unit_name},#{shop_specification_unit_creatime});
+	</insert>
+
+	<insert id="addworktypedata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_goods_worktype_id"
+		keyProperty="shop_goods_worktype_id">
+		INSERT INTO
+		shop_goods_worktype(shop_goods_worktype_name,shop_goods_worktype_creatime)
+		VALUE(#{shop_goods_worktype_name},#{shop_goods_worktype_creatime});
+	</insert>
+
+	<insert id="addlogisticsdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="shop_order_logistics_id"
+		keyProperty="shop_order_logistics_id">
+		INSERT INTO
+		shop_order_logistics(shop_order_logistics_name,shop_order_logistics_createtime)
+		VALUE(#{shop_order_logistics_name},#{shop_order_logistics_createtime});
+	</insert>
+
+
+	<update id="updatesellingAddressdatabyid"
+		parameterType="PageData">
+		UPDATE
+		shop_warehouse_classify
+		SET
+		warehouse_classify_name=#{warehouse_classify_name}
+		WHERE
+		warehouse_classify_id=#{warehouse_classify_id}
+	</update>
+
+
+	<update id="updatesellingdatabyid" parameterType="PageData">
+		UPDATE
+		shop_warehouse
+		SET
+		shop_warehouse_name=#{shop_warehouse_name},shop_warehouse_manupicture=#{shop_warehouse_manupicture},lon=#{lon},lat=#{lat},city=#{city}
+		WHERE
+		shop_warehouse_id=#{shop_warehouse_id}
+	</update>
+
+	<update id="updatelogisticsdatabyid" parameterType="PageData">
+		UPDATE
+		shop_order_logistics
+		SET
+		shop_order_logistics_name=#{shop_order_logistics_name}
+		WHERE
+		shop_order_logistics_id=#{shop_order_logistics_id}
+	</update>
+
+	<update id="updatecolordatabyid" parameterType="PageData">
+		UPDATE
+		shop_goods_color
+		SET
+		shop_goods_color_name=#{shop_goods_color_name}
+		WHERE
+		shop_goods_color_id=#{shop_goods_color_id}
+	</update>
+
+	<update id="updateworktypedatabyid" parameterType="PageData">
+		UPDATE
+		shop_goods_worktype
+		SET
+		shop_goods_worktype_name=#{shop_goods_worktype_name}
+		WHERE
+		shop_goods_worktype_id=#{shop_goods_worktype_id}
+	</update>
+	<update id="updateunitdatabyid" parameterType="PageData">
+		UPDATE
+		shop_goods_unit
+		SET
+		shop_goods_unit_name=#{shop_goods_unit_name}
+		WHERE
+		shop_goods_unit_id=#{shop_goods_unit_id}
+	</update>
+
+	<update id="updatesizeunitdatabyid" parameterType="PageData">
+		UPDATE
+		shop_specification_unit
+		SET
+		shop_specification_unit_name=#{shop_specification_unit_name}
+		WHERE
+		shop_specification_unit_id=#{shop_specification_unit_id}
+	</update>
+
+	<delete id="deletesellingAddressdatabyid"
+		parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_warehouse_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and warehouse_classify_id=#{id}</if>
+		</if>
+	</delete>
+	
+	<delete id="deletesellingaddressdatabywarehouseid"
+		parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_warehouse_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_warehouse_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deletelogisticsdatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_order_logistics
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_order_logistics_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deleteunitdatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_goods_unit
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_goods_unit_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deletesellingdatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_warehouse
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_warehouse_id=#{id}</if>
+		</if>
+	</delete>
+
+
+	<delete id="deletesizeunitdatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_specification_unit
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_specification_unit_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deletecolordatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_goods_color
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_goods_color_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deleteworktypedatabyid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_goods_worktype
+			where
+			1=1
+			<if test="id!=null and id!=''">and shop_goods_worktype_id=#{id}</if>
+		</if>
+	</delete>
+
+</mapper>

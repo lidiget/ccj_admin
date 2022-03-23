@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.RoleDao">
+	<select id="getAllRoleListPage" parameterType="Page"
+		resultType="PageData">
+		select
+		sr.*
+		from
+		sys_role sr
+
+		where 1=1
+		<if test="pd.deptid!=null">and d.dept_id=#{pd.deptid}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sr.role_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sr.role_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sr.create_by LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sr.remark
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by sr.role_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='role_id'">
+				sr.role_id
+			</if>
+			<if test="pd.sortField=='role_name'">
+				sr.role_name
+			</if>
+			<if test="pd.sortField=='role_key'">
+				sr.role_key
+			</if>
+			<if test="pd.sortField=='create_by'">
+				sr.create_by
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='role_id'">
+				sr.role_id
+			</if>
+			<if test="pd.sortField=='role_name'">
+				sr.role_name
+			</if>
+			<if test="pd.sortField=='role_key'">
+				sr.role_key
+			</if>
+			<if test="pd.sortField=='create_by'">
+				sr.create_by
+			</if>
+			ASC
+		</if>
+	</select>
+	<select id="getAllRoleData" parameterType="PageData"
+		resultType="PageData">
+		select
+		sr.role_id,
+		sr.role_name
+		from
+		sys_role sr
+		where 1=1
+	</select>
+	
+	<select id="getAllRoleListById" parameterType="PageData"
+		resultType="PageData">
+		select
+		sr.role_id,
+		sr.role_name
+		from
+		sys_role sr
+		where 1=1
+		<if test="roleid!=null">and sr.role_id=#{roleid}</if>
+	</select>
+	
+	<select id="getOneRoleDataByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		sr.*
+		from
+		sys_role sr
+		where
+		1=1
+		<if test="roleid!=null">and sr.role_id=#{roleid}</if>
+	</select>
+
+	<delete id="deleteOneRoledataByid" parameterType="PageData">
+		<if test="roleid!=null and roleid!=''">
+			delete from
+			sys_role
+			where
+			1=1
+			<if test="roleid!=null and roleid!=''">and role_id=#{roleid}</if>
+		</if>
+	</delete>
+
+	<update id="updataRoledataByid" parameterType="PageData">
+		UPDATE sys_role
+		SET
+		role_name=#{role_name},role_key=#{role_key},data_scope=#{data_scope},status=#{status},create_by=#{create_by},update_by=#{update_by},remark=#{remark},billrights=#{billrights},rights=#{rights},danjurights=#{danjurights}
+		WHERE role_id=#{role_id}
+	</update>
+
+	<update id="updataRoledataByid1" parameterType="PageData">
+		UPDATE sys_role
+		SET
+		role_name=#{role_name},role_key=#{role_key},data_scope=#{data_scope},status=#{status},create_by=#{create_by},update_by=#{update_by},remark=#{remark}
+		WHERE role_id=#{role_id}
+	</update>
+
+	<update id="udataRoleRights" parameterType="map">
+		UPDATE sys_role SET
+		<if test="cailiaorights!=null and cailiaorights!=''"> cailiaorights=#{cailiaorights}</if>
+		<if test="rengongrights!=null and rengongrights!=''"> rengongrights=#{rengongrights}</if>
+		<if test="yonghurights!=null and yonghurights!=''"> yonghurights=#{yonghurights}</if>
+		WHERE role_id=#{id}
+	</update>
+
+	<update id="udataRoleGongNengRights" parameterType="map">
+		UPDATE
+		sys_role SET
+		rights=#{rights}
+		WHERE role_id=#{id}
+	</update>
+
+	<insert id="InsertRole" parameterType="map"
+		useGeneratedKeys="true" keyColumn="role_id" keyProperty="role_id">
+		INSERT INTO
+		sys_role(role_name,role_key,data_scope,status,create_by,create_time,remark,role_sort,rights,billrights,danjurights,cailiaorights,rengongrights,yonghurights)
+		VALUE(#{role_name},#{role_key},#{data_scope},#{status},#{create_by},#{create_time},#{remark},#{role_sort},#{rights},#{billrights},#{danjurights},#{cailiaorights},#{rengongrights},#{yonghurights});
+	</insert>
+</mapper>

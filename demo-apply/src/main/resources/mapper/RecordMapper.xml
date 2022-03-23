@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.RecordDao">
+	<select id="getRnvoiceRecordListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		ir.*,
+		ui.user_name as username,
+		ui.user_realname AS realname,
+		ui.user_phone,
+		so.order_info_altogether
+		from
+		invoice_record
+		ir
+		LEFT JOIN
+		user_info ui ON ui.user_id =
+		ir.user_id
+		LEFT JOIN invoice_order io ON io.invoice_record_id = ir.invoice_record_id
+	    LEFT JOIN shop_order_info  so ON so.order_info_id = io.order_info_id
+		where
+		1=1
+		<if test="pd.id!=null">and ir.invoice_record_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ir.invoice_record_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ir.invoice_record_status LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by ir.invoice_record_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='invoice_record_id'">
+				ir.invoice_record_id
+			</if>
+			<if test="pd.sortField=='order_info_altogether'">
+				so.order_info_altogether
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='user_phone'">
+				ui.user_phone
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='invoice_record_id'">
+				ir.invoice_record_id
+			</if>
+			<if test="pd.sortField=='order_info_altogether'">
+				so.order_info_altogether
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='user_phone'">
+				ui.user_phone
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getWalletRecordListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		wr.*
+		from
+		trade_record wr
+		where 1=1
+		<if test="pd.id!=null">and wr.trade_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			wr.trade_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uwr.trade_explain LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uwr.money LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by wr.trade_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='trade_id'">
+				wr.trade_id
+			</if>
+			<if test="pd.sortField=='money'">
+				wr.money
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='trade_id'">
+				wr.trade_id
+			</if>
+			<if test="pd.sortField=='money'">
+				wr.money
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getAllBrowseDataListpage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		sbr.*,
+		ui.user_name AS username,
+		ui.user_realname AS realname,
+		sg.shop_goods_id,
+		sg.shop_goods_name
+		FROM
+		shop_bower_recodes sbr
+		LEFT JOIN
+		user_info ui ON ui.user_id = sbr.user_id
+		LEFT JOIN shop_goods sg ON
+		sg.shop_goods_id = sbr.shop_goods_id
+		where
+		1=1
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ui.user_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sbr.recodes_id LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_realname LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_goods_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by sbr.recodes_id desc
+		</if>
+
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='recodes_id'">
+				sbr.recodes_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='shop_goods_id'">
+				sg.shop_goods_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='recodes_id'">
+				sbr.recodes_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='shop_goods_id'">
+				sg.shop_goods_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			ASC
+		</if>
+	</select>
+</mapper>

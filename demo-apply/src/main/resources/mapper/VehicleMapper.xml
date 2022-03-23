@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.VehicleDao">
+	<select id="getAllCarParametersDataListpage"
+		parameterType="Page" resultType="PageData">
+		select
+		vc.*
+		from
+		vehicle_classify
+		vc
+		where 1=1
+		<if test="pd.id!=null">and vc.vehicle_classify_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			vc.vehicle_classify_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vc.vehicle_classify_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vc.vehicle_classify_specification
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vc.vehicle_classify_load
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vc.vehicle_classify_starting LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by vc.vehicle_classify_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='vehicle_classify_id'">
+				vc.vehicle_classify_id
+			</if>
+			<if test="pd.sortField=='vehicle_classify_name'">
+				vc.vehicle_classify_name
+			</if>
+			<if test="pd.sortField=='vehicle_classify_specification'">
+				vc.vehicle_classify_specification
+			</if>
+			<if test="pd.sortField=='vehicle_classify_load'">
+				vc.vehicle_classify_load
+			</if>
+			<if test="pd.sortField=='vehicle_classify_starting'">
+				vc.vehicle_classify_starting
+			</if>
+
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='vehicle_classify_id'">
+				vc.vehicle_classify_id
+			</if>
+			<if test="pd.sortField=='vehicle_classify_name'">
+				vc.vehicle_classify_name
+			</if>
+			<if test="pd.sortField=='vehicle_classify_specification'">
+				vc.vehicle_classify_specification
+			</if>
+			<if test="pd.sortField=='vehicle_classify_load'">
+				vc.vehicle_classify_load
+			</if>
+			<if test="pd.sortField=='vehicle_classify_starting'">
+				vc.vehicle_classify_starting
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getAllVehicleOrdersListpage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		vi.*,
+		vc.vehicle_classify_name AS cartypename,
+		vc.vehicle_classify_load AS carzaizhong,
+		vc.vehicle_classify_starting
+		AS carstartprice,
+		vc.vehicle_classify_specification AS carguige
+		FROM
+		vehicle_info
+		vi
+		LEFT JOIN
+		vehicle_classify
+		vc ON vc.vehicle_classify_id =
+		vi.vehicle_classify_id
+		where
+		1=1
+		<if test="pd.ids!=null">and vi.out_trade_no=#{pd.ids}</if>
+		<if test="pd.id!=null">and vi.vehicle_info_id=#{pd.id}</if>
+		<if test="pd.orderstatus!=null">and vi.vehicle_info_status=#{pd.orderstatus}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			vc.vehicle_classify_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_ids LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vc.vehicle_classify_specification
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vc.vehicle_classify_load
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vc.vehicle_classify_starting LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_depart LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_arrive LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_linkman LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_predict LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_moneys LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			vi.vehicle_info_payment LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by vi.vehicle_info_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='vehicle_info_id'">
+				vi.vehicle_info_id
+			</if>
+			<if test="pd.sortField=='vehicle_info_ids'">
+				vi.vehicle_info_ids
+			</if>
+			<if test="pd.sortField=='cartypename'">
+				vc.vehicle_classify_name
+			</if>
+			<if test="pd.sortField=='carguige'">
+				vc.vehicle_classify_specification
+			</if>
+			<if test="pd.sortField=='carzaizhong'">
+				vc.vehicle_classify_load
+			</if>
+			<if test="pd.sortField=='carstartprice'">
+				vc.vehicle_classify_starting
+			</if>
+			<if test="pd.sortField=='vehicle_info_predict'">
+				vi.vehicle_info_predict
+			</if>
+			<if test="pd.sortField=='vehicle_info_moneys'">
+				vi.vehicle_info_moneys
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='vehicle_info_id'">
+				vi.vehicle_info_id
+			</if>
+			<if test="pd.sortField=='vehicle_info_ids'">
+				vi.vehicle_info_ids
+			</if>
+			<if test="pd.sortField=='cartypename'">
+				vc.vehicle_classify_name
+			</if>
+			<if test="pd.sortField=='carguige'">
+				vc.vehicle_classify_specification
+			</if>
+			<if test="pd.sortField=='carzaizhong'">
+				vc.vehicle_classify_load
+			</if>
+			<if test="pd.sortField=='carstartprice'">
+				vc.vehicle_classify_starting
+			</if>
+			<if test="pd.sortField=='vehicle_info_predict'">
+				vi.vehicle_info_predict
+			</if>
+			<if test="pd.sortField=='vehicle_info_moneys'">
+				vi.vehicle_info_moneys
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<update id="updataVechiledataByid" parameterType="PageData">
+		UPDATE
+		vehicle_classify
+		SET
+		vehicle_classify_name=#{vehicle_classify_name},vehicle_classify_specification=#{vehicle_classify_specification},vehicle_classify_load=#{vehicle_classify_load},vehicle_classify_starting=#{vehicle_classify_starting},vehicle_classify_status=#{vehicle_classify_status},vehicle_classify_startkilometre=#{vehicle_classify_startkilometre},vehicle_classify_subsequentprice=#{vehicle_classify_subsequentprice}
+		,vehicle_classify_leixing=#{vehicle_classify_leixing}
+		WHERE
+		vehicle_classify_id=#{vehicle_classify_id}
+	</update>
+
+	<insert id="addVechiledata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="vehicle_classify_id"
+		keyProperty="vehicle_classify_id">
+		INSERT INTO
+		vehicle_classify(vehicle_classify_name,vehicle_classify_specification,vehicle_classify_load,vehicle_classify_starting,vehicle_classify_creatime,vehicle_classify_status,vehicle_classify_startkilometre,vehicle_classify_subsequentprice,vehicle_classify_leixing)
+		VALUE(#{vehicle_classify_name},#{vehicle_classify_specification},#{vehicle_classify_load},#{vehicle_classify_starting},#{vehicle_classify_creatime},#{vehicle_classify_status},#{vehicle_classify_startkilometre},#{vehicle_classify_subsequentprice},#{vehicle_classify_leixing});
+	</insert>
+
+	<delete id="deleteonevehicledataByid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			vehicle_classify
+			where
+			1=1
+			<if test="id!=null and id!=''">and vehicle_classify_id=#{id}</if>
+		</if>
+	</delete>
+</mapper>

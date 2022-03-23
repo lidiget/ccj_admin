@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.WokerOrdersDao">
+	<select id="getAllTaskFlowListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		wo.*
+		from
+		worker_order_info
+		wo
+		where 1=1
+		<if test="pd.id!=null">and wo.worker_info_id=#{pd.id}</if>
+		<if test="pd.orderstatus!=null">and wo.worker_info_status=#{pd.orderstatus}</if>
+		<if test="pd.status!=null">and wo.worker_info_driver=#{pd.status}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			wo.worker_info_ids LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.worker_info_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.harvest_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.harvest_phone LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.harvest_add LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.harvest_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.coupon_moeny LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.worker_info_word LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.worker_info_altogether LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.worker_info_payment LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			wo.worker_info_moneys LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by wo.worker_info_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='worker_info_id'">
+				wo.worker_info_id
+			</if>
+			<if test="pd.sortField=='harvest_name'">
+				wo.harvest_name
+			</if>
+			<if test="pd.sortField=='harvest_phone'">
+				wo.harvest_phone
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				wo.coupon_moeny
+			</if>
+			<if test="pd.sortField=='worker_info_altogether'">
+				wo.worker_info_altogether
+			</if>
+			<if test="pd.sortField=='worker_info_moneys'">
+				wo.worker_info_moneys
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='worker_info_id'">
+				wo.worker_info_id
+			</if>
+			<if test="pd.sortField=='harvest_name'">
+				wo.harvest_name
+			</if>
+			<if test="pd.sortField=='harvest_phone'">
+				wo.harvest_phone
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				wo.coupon_moeny
+			</if>
+			<if test="pd.sortField=='worker_info_altogether'">
+				wo.worker_info_altogether
+			</if>
+			<if test="pd.sortField=='worker_info_moneys'">
+				wo.worker_info_moneys
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getWorkderOrdersAllDetailsDataById"
+		parameterType="Page" resultType="PageData">
+		select
+		sg.*,
+		uw.worker_name as workername
+		from
+		worker_order_detail
+		sg
+		left
+		join
+		user_worker uw on uw.worker_id = sg.worker_id
+		where 1=1
+		<if test="pd.id!=null">and sg.worker_info_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sg.worker_info_amount LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_headline LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_price
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+	</select>
+
+	<update id="changeWorkerOrderStatusById"
+		parameterType="PageData">
+		UPDATE
+		worker_order_info
+		SET
+		worker_info_status=#{type}
+		WHERE
+		worker_info_id=#{id}
+	</update>
+
+
+
+</mapper>

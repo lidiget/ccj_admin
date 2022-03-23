@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.WorkUserDao">
+	<select id="getAllWorkUsersDataListpage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		uw.*,
+		aa.gongzhongname AS gongzhongname,
+		aa.gongzhongid AS
+		gongzhongid
+		FROM
+		user_worker uw
+		LEFT JOIN (
+		SELECT
+		cc.worker_id,
+		GROUP_CONCAT(dd.worker_two_name SEPARATOR ',') AS gongzhongname,
+		GROUP_CONCAT( dd.worker_two_id SEPARATOR ',' ) AS gongzhongid
+		FROM
+		user_worker_two cc
+		LEFT JOIN
+		worker_two_classify dd ON cc.worker_two_id
+		= dd.worker_two_id
+		GROUP BY
+		cc.worker_id
+		) aa ON aa.worker_id =
+		uw.worker_id
+		where 1=1
+		<if test="pd.worker_id!=null">and uw.worker_id=#{pd.worker_id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			aa.gongzhongname LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uw.worker_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uw.user_phone LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uw.worker_headline LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uw.worker_explain LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uw.worker_year LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uw.worker_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			uw.worker_integral LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by uw.worker_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+
+			<if test="pd.sortField=='worker_id'">
+				uw.user_id
+			</if>
+			<if test="pd.sortField=='worker_price'">
+				uw.worker_price
+			</if>
+			<if test="pd.sortField=='gongzhongname'">
+				aa.gongzhongname
+			</if>
+			<if test="pd.sortField=='worker_name'">
+				uw.worker_name
+			</if>
+			<if test="pd.sortField=='user_phone'">
+				uw.user_phone
+			</if>
+			<if test="pd.sortField=='worker_address'">
+				uw.worker_address
+			</if>
+			<if test="pd.sortField=='worker_headline'">
+				uw.worker_headline
+			</if>
+			<if test="pd.sortField=='worker_class'">
+				uw.worker_class
+			</if>
+			<if test="pd.sortField=='worker_year'">
+				uw.worker_year
+			</if>
+			<if test="pd.sortField=='worker_rating'">
+				uw.worker_rating
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='worker_id'">
+				uw.user_id
+			</if>
+			<if test="pd.sortField=='worker_price'">
+				uw.worker_price
+			</if>
+			<if test="pd.sortField=='gongzhongname'">
+				aa.gongzhongname
+			</if>
+			<if test="pd.sortField=='worker_name'">
+				uw.worker_name
+			</if>
+			<if test="pd.sortField=='user_phone'">
+				uw.user_phone
+			</if>
+			<if test="pd.sortField=='worker_address'">
+				uw.worker_address
+			</if>
+			<if test="pd.sortField=='worker_headline'">
+				uw.worker_headline
+			</if>
+			<if test="pd.sortField=='worker_class'">
+				uw.worker_class
+			</if>
+			<if test="pd.sortField=='worker_class'">
+				uw.worker_class
+			</if>
+			<if test="pd.sortField=='worker_year'">
+				uw.worker_year
+			</if>
+			<if test="pd.sortField=='worker_rating'">
+				uw.worker_rating
+			</if>
+			ASC
+		</if>
+	</select>
+	<select id="getOneWorkUserDataByid" parameterType="PageData"
+		resultType="PageData">
+		select
+		uw.*
+		from
+		user_worker uw
+		where
+		1=1
+		<if test="worker_id!=null">and uw.worker_id=#{worker_id}</if>
+	</select>
+
+	<delete id="deleteOneCommonuserdataByid"
+		parameterType="PageData">
+		<if test="user_id!=null and user_id!=''">
+			delete from
+			user_info
+			where
+			1=1
+			<if test="user_id!=null and user_id!=''">and user_id=#{user_id}</if>
+		</if>
+	</delete>
+
+	<update id="updataWorkuserdataByid" parameterType="PageData">
+		UPDATE
+		user_worker SET
+		worker_name=#{worker_name},user_phone=#{user_phone},worker_headline=#{worker_headline},worker_explain=#{worker_explain},worker_address=#{worker_address},worker_number=#{worker_number},worker_status=#{worker_status},worker_two_name=#{worker_two_name},user_files=#{user_files},user_ifhave=#{user_ifhave}
+		WHERE worker_id=#{worker_id}
+	</update>
+	<select id="SelectWorkerData" parameterType="PageData"
+		resultType="PageData">
+		<if test="user_phone !=null and user_phone !=''">
+			Select worker_id,user_phone from user_worker where
+			user_phone=#{user_phone}
+			LIMIT 1
+		</if>
+	</select>
+
+	<insert id="addWorkuserdata" parameterType="map"
+		useGeneratedKeys="true" keyColumn="worker_id" keyProperty="worker_id">
+		INSERT INTO
+		user_worker(worker_name,worker_pic,worker_picture,user_phone,user_saltvalue,user_encryption,worker_headline,worker_explain,worker_address,worker_number,worker_cretime,worker_status,worker_starttime,worker_endtime,worker_two_name,user_files,user_ifhave)
+		VALUE(#{worker_name},#{worker_pic},#{worker_picture},#{user_phone},#{user_saltvalue},#{user_encryption},#{worker_headline},#{worker_explain},#{worker_address},#{worker_number},#{worker_cretime},#{worker_status},#{worker_starttime},#{worker_endtime},#{worker_two_name},#{user_files},#{user_ifhave});
+	</insert>
+	<update id="UpdatepwdbyWokerid" parameterType="PageData">
+		<if test="worker_id != null and worker_id !=''">
+			UPDATE user_worker SET
+			user_saltvalue=#{user_saltvalue},user_encryption=#{user_encryption}
+			WHERE BINARY worker_id=#{worker_id}
+		</if>
+	</update>
+
+	<delete id="deleteoneworkuserdataByid" parameterType="PageData">
+		<if test="worker_id!=null and worker_id!=''">
+			delete from
+			user_worker
+			where
+			1=1
+			<if test="worker_id!=null and worker_id!=''">and worker_id=#{worker_id}</if>
+		</if>
+	</delete>
+
+	<delete id="deleteoneworkuserRelationdataByid"
+		parameterType="PageData">
+		<if test="worker_id!=null and worker_id!=''">
+			delete from
+			user_worker_two
+			where
+			1=1
+			<if test="worker_id!=null and worker_id!=''">and worker_id=#{worker_id}</if>
+		</if>
+	</delete>
+
+
+
+	<select id="getALLgongzhongxinxiListPage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		uwt.*,
+		uu.worker_two_name
+		FROM
+		user_worker_two uwt
+		LEFT JOIN
+		worker_two_classify uu ON uu.worker_two_id = uwt.worker_two_id
+		where
+		1=1
+		<if test="pd.workid!=null">and uwt.worker_id=#{pd.workid}</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by uwt.user_worker_two_id desc
+		</if>
+	</select>
+
+
+	<select id="getgongzhongdatabygongzhongid"
+		parameterType="PageData" resultType="PageData">
+		SELECT
+		ww.*
+		FROM worker_two_classify ww
+		WHERE
+		1=1
+		<if test="id!=null">and ww.worker_two_id=#{id}</if>
+	</select>
+
+	<update id="updatagongzongdataByid" parameterType="PageData">
+		<if test="user_worker_two_id != null and user_worker_two_id !=''">
+			UPDATE user_worker_two SET
+			worker_price=#{jiage},choosedunit=#{danwei}
+			WHERE BINARY
+			user_worker_two_id=#{user_worker_two_id}
+		</if>
+	</update>
+</mapper>

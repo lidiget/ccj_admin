@@ -1,0 +1,1175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demoapply.dao.OrdersDao">
+	<select id="getAllOrdersListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		sg.*,
+		aa.lirun,
+		IFNULL(sd.examine_status,5) AS shenhestatus,
+		sd.id
+		as
+		discountid,
+		ifnull((ifnull(sg.order_info_altogether,0)-ifnull(sg.order_info_payed,0)-ifnull(sg.order_info_discount,0)),0)
+		as
+		shengxiamoney,
+		ifnull(sg.order_info_payed,0) as payed,
+		ifnull(sg.order_info_discount,0) as discount,
+		sw.shop_warehouse_name AS
+		warehousename,
+		IFNULL(io.invoice_info_id,0) AS invoice_info_id,
+		uo.user_id
+		from
+		shop_order_info
+		sg
+		LEFT JOIN
+		shop_warehouse sw
+		ON
+		sw.shop_warehouse_id=sg.warehouse_classify_id
+		LEFT JOIN user_order uo ON sg.order_info_id= uo.order_info_id
+		LEFT JOIN (
+		SELECT
+		ioo.*,
+		iss.order_info_id
+		FROM
+		invoice_record ioo
+		LEFT JOIN
+		invoice_order iss ON
+		ioo.invoice_record_id = iss.invoice_record_id
+		) io ON io.order_info_id
+		= sg.order_info_id
+		LEFT JOIN
+		shop_order_discount sd ON sd.order_info_id
+		= sg.order_info_id
+		LEFT JOIN
+		(
+		SELECT
+		SUM(IFNULL(sod.order_detail_altogether,0) -
+		IFNULL(sod.shop_specification_price,0)) AS lirun,
+		sod.order_info_id AS
+		id
+		FROM
+		shop_order_detail sod
+		GROUP BY
+		sod.order_info_id
+		) aa ON aa.id =
+		sg.order_info_id
+
+		where
+		1=1
+		<if test="pd.id!=null">and sg.order_info_id=#{pd.id}</if>
+		<if test="pd.orderstatus!=null">and sg.order_info_status=#{pd.orderstatus}</if>
+		<if test="pd.status!=null">and sg.order_info_voicsta=#{pd.status}</if>
+		<if test="pd.userid!=null">and uo.user_id=#{pd.userid}</if>
+		<if test="pd.yonghudingdan!=null">and FIND_IN_SET(sg.order_info_id,#{pd.allids})</if>
+		<if test="pd.putongdingdan!=null">and not FIND_IN_SET(sg.order_info_id,#{pd.allids})</if>
+		<if test="pd.shenhe!=null">and FIND_IN_SET(sg.order_info_voicsta,'1,2,3')</if>
+		<if test="pd.starttime!=null and pd.starttime!=''">
+			and
+			DATE_FORMAT(sg.order_info_creatime,'%Y-%m-%d') &gt;=
+			#{pd.starttime}
+		</if>
+		<if test="pd.endtime!=null and pd.endtime!=''">
+			and
+			DATE_FORMAT(sg.order_info_creatime,'%Y-%m-%d') &lt;=
+			#{pd.endtime}
+		</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sg.order_info_ids LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_phone LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_add LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_freight LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.coupon_moeny LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_word LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_elevator LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_floor LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_distance LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_house LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_altogether LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_payment LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_moneys LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.warehouse_classify_id LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_altogether LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by sg.order_info_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='order_info_id'">
+				sg.order_info_id
+			</if>
+			<if test="pd.sortField=='order_info_ids'">
+				sg.order_info_ids
+			</if>
+			<if test="pd.sortField=='harvest_name'">
+				sg.harvest_name
+			</if>
+			<if test="pd.sortField=='harvest_phone'">
+				sg.harvest_phone
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				sg.coupon_moeny
+			</if>
+			<if test="pd.sortField=='order_info_altogether'">
+				sg.order_info_altogether
+			</if>
+			<if test="pd.sortField=='order_info_moneys'">
+				sg.order_info_moneys
+			</if>
+			<if test="pd.sortField=='discount'">
+				sg.order_info_discount
+			</if>
+			<if test="pd.sortField=='lirun'">
+				aa.lirun
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='order_info_id'">
+				sg.order_info_id
+			</if>
+			<if test="pd.sortField=='order_info_ids'">
+				sg.order_info_ids
+			</if>
+			<if test="pd.sortField=='harvest_name'">
+				sg.harvest_name
+			</if>
+			<if test="pd.sortField=='harvest_phone'">
+				sg.harvest_phone
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				sg.coupon_moeny
+			</if>
+			<if test="pd.sortField=='order_info_altogether'">
+				sg.order_info_altogether
+			</if>
+			<if test="pd.sortField=='order_info_moneys'">
+				sg.order_info_moneys
+			</if>
+			<if test="pd.sortField=='discount'">
+				sg.order_info_discount
+			</if>
+			<if test="pd.sortField=='lirun'">
+				aa.lirun
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+
+
+	<select id="getAllWorkOrderListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		worker_order_info
+		sg
+		where
+		1=1
+		<if test="pd.id!=null">and sg.worker_info_id=#{pd.id}</if>
+		<if test="pd.orderstatus!=null">and sg.worker_info_status=#{pd.orderstatus}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sg.worker_info_ids LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_info_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_phone LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_add LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.harvest_address LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_info_word LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.coupon_moeny LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_info_altogether LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_info_payment LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_info_moneys LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_info_receiving LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.worker_info_accomplish
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by sg.worker_info_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='order_info_id'">
+				sg.worker_info_id
+			</if>
+			<if test="pd.sortField=='order_info_ids'">
+				sg.worker_info_ids
+			</if>
+			<if test="pd.sortField=='harvest_name'">
+				sg.harvest_name
+			</if>
+			<if test="pd.sortField=='harvest_phone'">
+				sg.harvest_phone
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				sg.coupon_moeny
+			</if>
+			<if test="pd.sortField=='order_info_altogether'">
+				sg.worker_info_altogether
+			</if>
+			<if test="pd.sortField=='order_info_moneys'">
+				sg.worker_info_moneys
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='order_info_id'">
+				sg.worker_info_id
+			</if>
+			<if test="pd.sortField=='order_info_ids'">
+				sg.worker_info_ids
+			</if>
+			<if test="pd.sortField=='harvest_name'">
+				sg.harvest_name
+			</if>
+			<if test="pd.sortField=='harvest_phone'">
+				sg.harvest_phone
+			</if>
+			<if test="pd.sortField=='coupon_moeny'">
+				sg.coupon_moeny
+			</if>
+			<if test="pd.sortField=='order_info_altogether'">
+				sg.worker_info_altogether
+			</if>
+			<if test="pd.sortField=='order_info_moneys'">
+				sg.worker_info_moneys
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getAllBadEvaluationListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		gc.*,
+		IFNULL(wc.worker_detail_id,0) AS worker_detail_id,
+		a.goodsname as goodsname,
+		ui.user_name as username
+		from
+		goods_comment gc
+		LEFT JOIN
+		user_info ui
+		ON
+		ui.user_id =
+		gc.user_id
+		LEFT JOIN worker_comment
+		wc ON wc.goods_comment_id= gc.goods_comment_id
+		LEFT JOIN
+		(
+		SELECT
+		sgc.*,
+		sg.shop_goods_name as goodsname
+		FROM
+		shop_goods_comment sgc
+		LEFT JOIN
+		shop_goods sg on sgc.shop_goods_id = sg.shop_goods_id
+		) a ON
+		a.goods_comment_id = gc.goods_comment_id
+		where 1=1
+		<if test="pd.id!=null">and gc.goods_comment_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			ui.user_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.goods_comment_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.goods_comment_level LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.goods_comment_content LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.goods_comment_slideshow
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.goods_comment_status
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			a.goodsname LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+
+		<if test="pd.sortOrder==null or pd.sortOrder=='' ">
+			order by gc.goods_comment_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='goods_comment_id'">
+				gc.goods_comment_id
+			</if>
+			<if test="pd.sortField=='worker_detail_id'">
+				gc.worker_detail_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='goodsname'">
+				a.goodsname
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='goods_comment_id'">
+				gc.goods_comment_id
+			</if>
+			<if test="pd.sortField=='worker_detail_id'">
+				gc.worker_detail_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='goodsname'">
+				a.goodsname
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getAllReturnOrderListpage" parameterType="Page"
+		resultType="PageData">
+		select
+		gc.*,
+		so.order_info_payment,
+		so.out_trade_no,
+		so.order_info_altogether,
+		so.order_info_freight,
+		oo.user_id
+		from
+		shop_refund gc
+		LEFT
+		JOIN
+		shop_order_info so
+		ON so.order_info_id =
+		gc.order_info_id
+		LEFT JOIN user_order oo ON oo.order_info_id =
+		gc.order_info_id
+		where 1=1
+		<if test="pd.id!=null">and gc.refund_id=#{pd.id}</if>
+		<if test="pd.orderstatus!=null">and gc.refund_status=#{pd.orderstatus}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			gc.refund_id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.refund_money LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.refund_cargo LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			gc.refund_cause
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by gc.refund_id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='refund_id'">
+				gc.refund_id
+			</if>
+			<if test="pd.sortField=='refund_ids'">
+				gc.refund_ids
+			</if>
+			<if test="pd.sortField=='order_info_id'">
+				gc.order_info_id
+			</if>
+			<if test="pd.sortField=='refund_money'">
+				gc.refund_money
+			</if>
+			<if test="pd.sortField=='refund_cargo'">
+				gc.refund_cargo
+			</if>
+			<if test="pd.sortField=='refund_cause'">
+				gc.refund_cause
+			</if>
+			<if test="pd.sortField=='order_info_freight'">
+				so.order_info_freight
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='refund_id'">
+				gc.refund_id
+			</if>
+			<if test="pd.sortField=='refund_ids'">
+				gc.refund_ids
+			</if>
+			<if test="pd.sortField=='order_info_id'">
+				gc.order_info_id
+			</if>
+			<if test="pd.sortField=='refund_money'">
+				gc.refund_money
+			</if>
+			<if test="pd.sortField=='refund_cargo'">
+				gc.refund_cargo
+			</if>
+			<if test="pd.sortField=='refund_cause'">
+				gc.refund_cause
+			</if>
+			<if test="pd.sortField=='order_info_freight'">
+				so.order_info_freight
+			</if>
+
+			ASC
+		</if>
+	</select>
+
+
+	<select id="getOrdersAllDetailsDataById" parameterType="Page"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		shop_order_detail
+		sg
+		where 1=1
+		<if test="pd.id!=null">and sg.order_info_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sg.shop_goods_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_amount LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_specification_price LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_detail_altogether
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='order_info_id'">
+				sg.order_info_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			<if test="pd.sortField=='order_info_amount'">
+				sg.order_info_amount
+			</if>
+			<if test="pd.sortField=='shop_specification_name'">
+				sg.shop_specification_name
+			</if>
+			<if test="pd.sortField=='shop_specification_price'">
+				sg.shop_specification_price
+			</if>
+			<if test="pd.sortField=='order_detail_altogether'">
+				sg.order_detail_altogether
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='order_info_id'">
+				sg.order_info_id
+			</if>
+			<if test="pd.sortField=='shop_goods_name'">
+				sg.shop_goods_name
+			</if>
+			<if test="pd.sortField=='order_info_amount'">
+				sg.order_info_amount
+			</if>
+			<if test="pd.sortField=='shop_specification_name'">
+				sg.shop_specification_name
+			</if>
+			<if test="pd.sortField=='shop_specification_price'">
+				sg.shop_specification_price
+			</if>
+			<if test="pd.sortField=='order_detail_altogether'">
+				sg.order_detail_altogether
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+
+	<select id="getWorkOrdersDataByIdListPage" parameterType="Page"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		worker_order_info
+		sg
+		where 1=1
+		<if test="pd.ids!=null">and sg.out_trade_no=#{pd.ids}</if>
+	</select>
+
+	<select id="getWorkOrdersAllDetailsDataById"
+		parameterType="Page" resultType="PageData">
+		select
+		sg.*
+		from
+		worker_order_detail
+		sg
+		where 1=1
+		<if test="pd.id!=null">and sg.worker_info_id=#{pd.id}</if>
+		<if test="pd.orderstatus!=null">and sg.worker_info_sta=#{pd.orderstatus}</if>
+		<if test="pd.starttime!=null and pd.starttime!=''">
+			and
+			DATE_FORMAT(sg.worker_detail_creatime,'%Y-%m-%d') &gt;=
+			#{pd.starttime}
+		</if>
+		<if test="pd.endtime!=null and pd.endtime!=''">
+			and
+			DATE_FORMAT(sg.worker_detail_creatime,'%Y-%m-%d') &lt;=
+			#{pd.endtime}
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='worker_info_id'">
+				sg.worker_info_id
+			</if>
+			<if test="pd.sortField=='worker_name'">
+				sg.worker_name
+			</if>
+			<if test="pd.sortField=='worker_info_amount'">
+				sg.worker_info_amount
+			</if>
+			<if test="pd.sortField=='worker_headline'">
+				sg.worker_headline
+			</if>
+			<if test="pd.sortField=='worker_price'">
+				sg.worker_price
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='worker_info_id'">
+				sg.worker_info_id
+			</if>
+			<if test="pd.sortField=='worker_name'">
+				sg.worker_name
+			</if>
+			<if test="pd.sortField=='worker_info_amount'">
+				sg.worker_info_amount
+			</if>
+			<if test="pd.sortField=='worker_headline'">
+				sg.worker_headline
+			</if>
+			<if test="pd.sortField=='worker_price'">
+				sg.worker_price
+			</if>
+			ASC
+		</if>
+	</select>
+
+	<select id="getOrdersAllDetailsDataByCommentId"
+		parameterType="Page" resultType="PageData">
+		select
+		sg.*
+		from
+		shop_order_detail
+		sg
+		where 1=1
+		<if test="pd.id!=null">and sg.order_detail_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			sg.shop_goods_name LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_info_amount LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.shop_specification_price LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			sg.order_detail_altogether
+			LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+	</select>
+
+
+	<select id="getAllUserOrderIds" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		user_order sg
+		where
+		1=1
+	</select>
+
+	<select id="getUserDataByOrderid" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		ui.user_integral
+		FROM
+		user_info ui
+		LEFT JOIN user_order
+		uo ON uo.user_id = ui.user_id
+		LEFT JOIN shop_order_info ss ON
+		uo.order_info_id = ss.order_info_id
+		WHERE
+		1=1
+		AND
+		ss.order_info_id=#{id}
+	</select>
+
+	<update id="changeOrderStatusById" parameterType="PageData">
+		UPDATE
+		shop_order_info
+		SET
+		order_info_status=#{type}
+		<if test="wuliugongsi!=null">,order_info_wuliu=#{wuliugongsi}</if>
+		<if test="dingdan!=null">,order_info_danhao=#{dingdan}</if>
+		<if test="remark!=null">,order_info_remark=#{remark}</if>
+		<if test="files!=null">,files=#{files}</if>
+		<if test="yunfei!=null">,order_info_yunfei=#{yunfei}</if>
+		WHERE
+		1=1
+		and
+		order_info_id=#{id}
+	</update>
+
+	<update id="changeWorkOrderStatusById" parameterType="PageData">
+		UPDATE
+		worker_order_info
+		SET
+		worker_info_status=#{type}
+		<if test="wuliugongsi!=null">,order_info_wuliu=#{wuliugongsi}</if>
+		<if test="dingdan!=null">,order_info_danhao=#{dingdan}</if>
+		WHERE
+		1=1
+		and
+		worker_info_id=#{id}
+	</update>
+
+	<update id="changeReturnOrderStatusById"
+		parameterType="PageData">
+		UPDATE
+		shop_refund
+		SET
+		<if test="type!=null">refund_status=#{type}</if>
+		<if test="goodstype!=null">refund_cargo=#{goodstype}</if>
+		WHERE
+		1=1
+		and
+		refund_id=#{id}
+	</update>
+
+	<update id="changeOrderkaipiaoStatusById"
+		parameterType="PageData">
+		UPDATE
+		shop_order_info
+		SET
+		order_info_voicsta=#{type}
+		<if test="reason!=null and reason!=''">,reason=#{reason}</if>
+		WHERE
+		order_info_id=#{id}
+	</update>
+	
+	<update id="changeOrderkaipiaoStatusByinvoiceId"
+		parameterType="PageData">
+		UPDATE
+		invoice_record
+		SET
+		invoice_record_status=#{tongguo}
+		WHERE
+		invoice_info_id=#{invoice_info_id}
+	</update>
+
+	<select id="seleUseridByOrderid" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		uo.user_id AS userid
+		FROM
+		user_order uo
+		WHERE
+		1=1
+		AND
+		uo.order_info_id = #{orderid}
+	</select>
+
+	<select id="seleOneByOrderid" parameterType="PageData"
+		resultType="PageData">
+		SELECT
+		IF
+		( ( IFNULL(soi.order_info_altogether,0) -
+		IFNULL(soi.order_info_payed,0) - IFNULL(soi.order_info_discount,0) )
+		&lt;= 0, 'yes', 'no' ) AS payed
+		FROM
+		shop_order_info soi
+		WHERE
+		1=1
+		AND
+		soi.order_info_id = #{orderid}
+	</select>
+
+	<insert id="addColletionBillsdata" parameterType="PageData">
+		INSERT INTO
+		shop_order_collection(user_id,order_info_id,totalprice,remark,createtime)
+		values(#{userid},#{orderid},#{money},#{remark},#{createtime})
+	</insert>
+
+
+
+
+	<insert id="addZheKouBillsdata" parameterType="PageData">
+		INSERT INTO
+		shop_order_discount(user_id,order_info_id,totalprice,remark,createtime,examine_status,refuse_reason)
+		values(#{userid},#{orderid},#{money},#{remark},#{createtime},#{examine_status},#{refuse_reason})
+	</insert>
+
+	<update id="updateOrdersTopayByOrderid" parameterType="PageData">
+		UPDATE
+		shop_order_info
+		SET
+		order_info_payed=IFNULL(order_info_payed,0)+#{money},
+		order_info_moneys=IFNULL(order_info_moneys,0)+#{money}
+		WHERE
+		1=1
+		and
+		order_info_id=#{orderid}
+	</update>
+
+	<update id="updateOrdersDiscountByOrderid"
+		parameterType="PageData">
+		UPDATE
+		shop_order_info
+		SET
+		order_info_discount=IFNULL(order_info_discount,0)+#{money}
+		WHERE
+		1=1
+		and
+		order_info_id=#{orderid}
+	</update>
+
+
+	<update id="updateJifenByuserid" parameterType="PageData">
+		UPDATE
+		user_info
+		SET
+		user_integral=IFNULL(user_integral,0)+#{money}
+		WHERE
+		1=1
+		and
+		user_id=#{userid}
+	</update>
+
+
+	<select id="getAllCollectionRecordListpage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		so.*,
+		ui.user_name AS username,
+		ui.user_realname AS realname,
+		ui.user_phone AS phone
+		FROM
+		shop_order_collection so
+		LEFT JOIN
+		user_info
+		ui
+		on
+		so.user_id = ui.user_id
+		where
+		1=1
+		<if test="pd.id!=null">and so.invoice_record_id=#{pd.id}</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			so.id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.user_id LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.order_info_id LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.totalprice LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.remark
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_realname LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_phone LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by so.id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='id'">
+				so.id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				so.user_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='phone'">
+				ui.user_phone
+			</if>
+			<if test="pd.sortField=='order_info_id'">
+				so.order_info_id
+			</if>
+			<if test="pd.sortField=='totalprice'">
+				so.totalprice
+			</if>
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='id'">
+				so.id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				so.user_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='phone'">
+				ui.user_phone
+			</if>
+			<if test="pd.sortField=='order_info_id'">
+				so.order_info_id
+			</if>
+			<if test="pd.sortField=='totalprice'">
+				so.totalprice
+			</if>
+			ASC
+		</if>
+	</select>
+
+
+	<insert id="addUserOperationRecorddata" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="user_operation_record_id"
+		keyProperty="user_operation_record_id">
+		INSERT INTO
+		user_operation_record(user_operation_record_type,user_operation_record_detail,user_operation_record_createtime,user_id,bills_type,type_id,user_operation_record_olddetail)
+		VALUE(#{user_operation_record_type},#{user_operation_record_detail},#{user_operation_record_createtime},#{user_id},#{bills_type},#{type_id},#{user_operation_record_olddetail});
+	</insert>
+
+
+	<insert id="addworktwonamebyworkid" parameterType="PageData"
+		useGeneratedKeys="true" keyColumn="user_worker_two_id"
+		keyProperty="user_worker_two_id">
+		INSERT INTO
+		user_worker_two(user_worker_two_id,worker_two_id,worker_id,user_worker_cretime,user_worker_status,worker_price,choosedunit)
+		values(#{user_worker_two_id},#{worker_two_id},#{worker_id},#{user_worker_cretime},#{user_worker_status},#{worker_price},#{choosedunit})
+	</insert>
+
+	<select id="getAllDiscountRecordListpage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		so.*,
+		ui.user_name AS username,
+		ui.user_realname AS realname,
+		ui.user_phone AS phone
+		FROM
+		shop_order_discount so
+		LEFT JOIN
+		user_info
+		ui
+		on
+		so.user_id = ui.user_id
+		where
+		1=1
+		<if test="pd.id!=null">and so.invoice_record_id=#{pd.id}</if>
+		<if test="pd.caiwu!=null">and FIND_IN_SET(so.examine_status,'0,1,2,4')</if>
+		<if test="pd.zongjinban!=null">and FIND_IN_SET(so.examine_status,'1,2,4')</if>
+		<if test="pd.keywords!=null and pd.keywords!=''">
+			and
+			(
+			so.id LIKE CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.user_id LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.order_info_id LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.totalprice LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			so.remark
+			LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_name LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_realname LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			or
+			ui.user_phone LIKE
+			CONCAT
+			(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.sortOrder==null or pd.sortOrder==''">
+			order by so.id desc
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='descend'">
+			order by
+			<if test="pd.sortField=='id'">
+				so.user_id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				so.user_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='phone'">
+				ui.user_phone
+			</if>
+			<if test="pd.sortField=='order_info_id'">
+				so.order_info_id
+			</if>
+			<if test="pd.sortField=='totalprice'">
+				so.totalprice
+			</if>
+
+			DESC
+		</if>
+		<if test="pd.sortOrder!=null and pd.sortOrder=='ascend'">
+			order by
+			<if test="pd.sortField=='id'">
+				so.user_id
+			</if>
+			<if test="pd.sortField=='user_id'">
+				so.user_id
+			</if>
+			<if test="pd.sortField=='username'">
+				ui.user_name
+			</if>
+			<if test="pd.sortField=='realname'">
+				ui.user_realname
+			</if>
+			<if test="pd.sortField=='phone'">
+				ui.user_phone
+			</if>
+			<if test="pd.sortField=='order_info_id'">
+				so.order_info_id
+			</if>
+			<if test="pd.sortField=='totalprice'">
+				so.totalprice
+			</if>
+
+			ASC
+		</if>
+	</select>
+
+
+	<update id="shenheDiscountSuccess" parameterType="PageData">
+		UPDATE
+		shop_order_discount
+		SET
+		examine_status=#{status}
+		<if test="remark!=null">,refuse_reason=#{remark}</if>
+		WHERE
+		1=1
+		and
+		id=#{id}
+	</update>
+
+	<select id="getonediscountrecordbyid" parameterType="PageData"
+		resultType="PageData">
+		select
+		sg.*
+		from
+		shop_order_discount sg
+		where
+		1=1
+		<if test="id!=null">and sg.id=#{id}</if>
+	</select>
+
+	<delete id="deleteshenheDiscountSuccess"
+		parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			shop_order_discount
+			where
+			1=1
+			<if test="id!=null and id!=''">and id=#{id}</if>
+		</if>
+	</delete>
+
+
+	<delete id="deleteAlljiluByOrderid" parameterType="PageData">
+		<if test="id!=null and id!=''">
+			delete from
+			invoice_info
+			where
+			1=1
+			<if test="id!=null and id!=''">and order_info_id=#{id}</if>
+		</if>
+	</delete>
+
+	<delete id="deleteworktwonamebyworkid" parameterType="PageData">
+		<if test="worker_id!=null and worker_id!=''">
+			delete from
+			user_worker_two
+			where
+			1=1
+			<if test="worker_id!=null and worker_id!=''">and worker_id=#{worker_id}</if>
+		</if>
+	</delete>
+
+	<select id="getAllKaiPiaoDetailsListpage" parameterType="Page"
+		resultType="PageData">
+		SELECT
+		ii.*
+		FROM
+		invoice_info ii
+		where
+		1=1
+		<if test="id!=null and id!=''">and ii.invoice_info_id=#{id}</if>
+	</select>
+
+</mapper>
